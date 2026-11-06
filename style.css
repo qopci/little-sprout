@@ -1,0 +1,348 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --background: #f6f7ef;
+    --green: #668b5d;
+    --dark-green: #405e3c;
+    --light-green: #e5eddc;
+    --cream: #fffdf5;
+    --text: #424b3d;
+    --muted: #899183;
+    --brown: #bd8867;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+}
+
+/* Header */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 8%;
+    border-bottom: 1px solid #e5e9df;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--dark-green);
+    text-decoration: none;
+}
+
+.resources {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Main layout */
+
+.garden {
+    max-width: 900px;
+    margin: auto;
+    padding: 65px 25px;
+}
+
+.welcome {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.eyebrow {
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+}
+
+.welcome h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    color: var(--dark-green);
+    margin-bottom: 10px;
+}
+
+.welcome > p:last-child {
+    color: var(--muted);
+}
+
+/* Plant area */
+
+.plant-area {
+    max-width: 480px;
+    margin: auto;
+    background: var(--cream);
+    border: 1px solid #e9ebdf;
+    border-radius: 25px;
+    padding: 35px 30px;
+    text-align: center;
+    box-shadow: 0 8px 30px #5263430a;
+}
+
+.plant-label {
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.plant-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 190px;
+    height: 220px;
+    margin: 15px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.plant-button:focus-visible {
+    outline: 3px solid var(--green);
+    outline-offset: 5px;
+    border-radius: 20px;
+}
+
+.plant {
+    position: relative;
+    width: 120px;
+    height: 130px;
+    transform-origin: bottom center;
+    transition: transform 0.3s ease;
+}
+
+.plant-button:hover .plant {
+    transform: scale(1.07);
+}
+
+.stem {
+    position: absolute;
+    bottom: 0;
+    left: 58px;
+    width: 7px;
+    height: 65px;
+    background: #668e55;
+    border-radius: 10px;
+}
+
+.leaf {
+    position: absolute;
+    background: #81ad6d;
+    border-radius: 100% 0 100% 0;
+    transition: all 0.4s ease;
+}
+
+.leaf-left {
+    width: 42px;
+    height: 25px;
+    bottom: 38px;
+    left: 18px;
+    transform: rotate(15deg);
+}
+
+.leaf-right {
+    width: 42px;
+    height: 25px;
+    bottom: 57px;
+    right: 14px;
+    transform: rotate(75deg);
+    background: #93bd79;
+}
+
+.leaf-top {
+    width: 32px;
+    height: 32px;
+    bottom: 82px;
+    left: 49px;
+    transform: rotate(-45deg);
+    background: #a5c986;
+}
+
+/* Pot */
+
+.pot {
+    position: relative;
+    width: 95px;
+    height: 70px;
+}
+
+.pot-rim {
+    position: absolute;
+    top: 0;
+    left: -5px;
+    width: 105px;
+    height: 13px;
+    background: #d3a17d;
+    border-radius: 5px;
+    z-index: 2;
+}
+
+.pot-body {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 95px;
+    height: 57px;
+    background: var(--brown);
+    clip-path: polygon(0 0, 100% 0, 83% 100%, 17% 100%);
+    border-radius: 3px;
+}
+
+.plant-name {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--dark-green);
+}
+
+.plant-description {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+/* Progress */
+
+.progress-container {
+    margin: 28px 0 22px;
+    text-align: left;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e9eddf;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #82aa70;
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+
+/* Water button */
+
+.water-button {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    width: 100%;
+    border-radius: 13px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.water-button:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+}
+
+.water-button span {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Statistics */
+
+.garden-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.stat-card {
+    background: var(--cream);
+    border: 1px solid #e9ebdf;
+    padding: 20px 10px;
+    border-radius: 17px;
+    text-align: center;
+}
+
+.stat-card > span {
+    font-size: 23px;
+}
+
+.stat-card p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 6px 0;
+}
+
+.stat-card h2 {
+    color: var(--dark-green);
+    font-size: 23px;
+}
+
+/* Footer */
+
+footer {
+    text-align: center;
+    padding: 25px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Responsive */
+
+@media (max-width: 550px) {
+    .header {
+        padding: 18px 5%;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .resources {
+        gap: 15px;
+        font-size: 12px;
+    }
+
+    .garden {
+        padding: 40px 15px;
+    }
+
+    .plant-area {
+        padding: 28px 18px;
+    }
+
+    .garden-stats {
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 15px 5px;
+    }
+}

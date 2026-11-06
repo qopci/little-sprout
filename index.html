@@ -4,14 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Little Sprout</title>
+
+    <link rel="icon" type="image/png" href="favicon-sprout.png">
     <link rel="stylesheet" href="style.css">
+
     <script src="script.js" defer></script>
 </head>
+
 <body>
 
     <header class="header">
-        <a class="logo" href="#">✿ Little Sprout</a>
+        <a class="logo" href="#">𖧧 Little Sprout</a>
+
         <div class="resources">
             <span>🌱 <span id="growth">0</span> Growth</span>
             <span>☀️ <span id="sunlight">0</span> Sunlight</span>
@@ -19,6 +25,7 @@
     </header>
 
     <main class="garden">
+
         <section class="welcome">
             <p class="eyebrow">YOUR LITTLE GARDEN</p>
             <h1>A little space to grow.</h1>
@@ -26,15 +33,24 @@
         </section>
 
         <section class="plant-area">
-            <p class="plant-label" id="plant-stage">A tiny beginning</p>
 
-            <button class="plant-button" id="plant-button"
-                    aria-label="Give your plant some love">
-                <div class="plant" id="plant">
+            <p class="plant-label" id="plant-stage">
+                A tiny beginning
+            </p>
+
+            <button
+                class="plant-button"
+                id="plant-button"
+                aria-label="Give your plant some love"
+            >
+                <div class="plant stage-1" id="plant">
+
                     <div class="stem"></div>
+
                     <div class="leaf leaf-left"></div>
                     <div class="leaf leaf-right"></div>
                     <div class="leaf leaf-top"></div>
+
                 </div>
 
                 <div class="pot">
@@ -44,26 +60,41 @@
             </button>
 
             <p class="plant-name">Your first sprout ♡</p>
+
             <p class="plant-description" id="plant-description">
                 Every little bit helps it grow.
             </p>
 
             <div class="progress-container">
+
                 <div class="progress-info">
                     <span>Next growth stage</span>
                     <span id="progress-text">0 / 50</span>
                 </div>
-                <div class="progress-bar">
+
+                <div
+                    class="progress-bar"
+                    role="progressbar"
+                    aria-label="Plant growth progress"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="0"
+                    id="progress-bar"
+                >
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
+
             </div>
 
             <button class="water-button" id="water-button">
-                💧 Water your plant <span>+5 growth</span>
+                💧 Water your plant
+                <span>+5 growth</span>
             </button>
+
         </section>
 
         <section class="garden-stats">
+
             <div class="stat-card">
                 <span>🌱</span>
                 <p>Total growth</p>
@@ -81,7 +112,9 @@
                 <p>Plant stage</p>
                 <h2 id="stage-count">1</h2>
             </div>
+
         </section>
+
     </main>
 
     <footer>

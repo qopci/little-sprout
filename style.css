@@ -7,7 +7,11 @@
     --text: #424b3d;
     --muted: #899183;
     --brown: #bd8867;
+    --border: #e9ebdf;
+    --card-background: #f7f8f1;
 }
+
+/* Reset */
 
 * {
     margin: 0;
@@ -16,11 +20,37 @@
 }
 
 body {
+    min-height: 100vh;
     background: var(--background);
     color: var(--text);
     font-family: 'Nunito', 'Trebuchet MS', sans-serif;
-    min-height: 100vh;
 }
+
+button,
+a,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--green);
+    outline-offset: 3px;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+/* Header */
 
 .header {
     display: flex;
@@ -31,18 +61,45 @@ body {
 }
 
 .logo {
+    color: var(--dark-green);
     font-size: 22px;
     font-weight: 800;
-    color: var(--dark-green);
     text-decoration: none;
 }
 
 .resources {
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 24px;
     font-size: 14px;
     font-weight: 700;
 }
+
+/* Sound button */
+
+.mute-button {
+    padding: 6px 10px;
+    border: 1px solid #cbd3c3;
+    border-radius: 16px;
+    background: var(--light-green);
+    color: var(--dark-green);
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+    transition: background .2s, transform .2s;
+}
+
+.mute-button:hover {
+    background: #d5e3cc;
+    transform: translateY(-2px);
+}
+
+.mute-button:active {
+    transform: scale(.97);
+}
+
+/* Main layout */
 
 .garden {
     max-width: 900px;
@@ -51,69 +108,64 @@ body {
 }
 
 .welcome {
-    text-align: center;
     margin-bottom: 35px;
+    text-align: center;
 }
 
 .eyebrow {
+    margin-bottom: 12px;
     color: var(--green);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 3px;
-    margin-bottom: 12px;
 }
 
 .welcome h1 {
-    font-size: clamp(28px, 5vw, 42px);
-    color: var(--dark-green);
     margin-bottom: 10px;
+    color: var(--dark-green);
+    font-size: clamp(28px, 5vw, 42px);
 }
 
 .welcome>p:last-child {
     color: var(--muted);
 }
 
+/* Plant area */
+
 .plant-area {
     position: relative;
     max-width: 480px;
     margin: auto;
-    background: var(--cream);
-    border: 1px solid #e9ebdf;
-    border-radius: 25px;
     padding: 35px 30px;
-    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    background: var(--cream);
     box-shadow: 0 8px 30px #5263430a;
+    text-align: center;
 }
 
 .plant-label {
     position: relative;
     z-index: 5;
+    margin-bottom: 10px;
     color: var(--green);
     font-size: 15px;
     font-weight: 800;
-    margin-bottom: 10px;
     line-height: 1.5;
 }
 
 .plant-button {
     position: relative;
     z-index: 1;
-    background: none;
-    border: none;
-    cursor: pointer;
-    width: 190px;
-    height: 220px;
-    margin: 0 auto 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-}
-
-.plant-button:focus-visible {
-    outline: 3px solid var(--green);
-    outline-offset: 5px;
-    border-radius: 20px;
+    width: 190px;
+    height: 220px;
+    margin: 0 auto 15px;
+    border: none;
+    background: none;
 }
 
 .plant-button:active .plant {
@@ -122,85 +174,77 @@ body {
 
 .plant {
     position: relative;
+    flex-shrink: 0;
     width: 120px;
     height: 130px;
-    flex-shrink: 0;
     transform-origin: bottom center;
     animation: gentle-sway 4s ease-in-out infinite;
 }
 
 .stem {
     position: absolute;
+    z-index: 1;
     bottom: 0;
     left: 57px;
     width: 7px;
     height: 65px;
-    background: #668e55;
     border-radius: 10px;
-    z-index: 1;
+    background: #668e55;
     transition: height .5s ease, background .5s ease;
 }
 
 .leaf {
     position: absolute;
-    background: #81ad6d;
-    border-radius: 100% 0 100% 0;
     z-index: 2;
-    transition: width .5s ease, height .5s ease, bottom .5s ease,
-        left .5s ease, right .5s ease, background .5s ease;
+    border-radius: 100% 0 100% 0;
+    background: #81ad6d;
+    transition:
+        width .5s ease,
+        height .5s ease,
+        bottom .5s ease,
+        left .5s ease,
+        right .5s ease,
+        background .5s ease;
 }
 
 .leaf-left {
-    width: 45px;
-    height: 25px;
     bottom: 45px;
     left: 12px;
+    width: 45px;
+    height: 25px;
     transform: rotate(15deg);
 }
 
 .leaf-right {
+    right: 5px;
+    bottom: 55px;
     width: 45px;
     height: 25px;
-    bottom: 55px;
-    right: 5px;
     transform: rotate(75deg);
     background: #93bd79;
 }
 
 .leaf-top {
-    width: 32px;
-    height: 32px;
     bottom: 82px;
     left: 40px;
+    width: 32px;
+    height: 32px;
     transform: rotate(-45deg);
     background: #a5c986;
 }
 
+/* Plant growth stages */
+
 .plant.stage-2 .stem {
     height: 78px;
-}
-
-.plant.stage-2 .leaf {
-    width: 50px;
-    height: 30px;
 }
 
 .plant.stage-3 .stem {
     height: 88px;
 }
 
-.plant.stage-3 .leaf {
-    width: 55px;
-    height: 33px;
-}
-
 .plant.stage-4 .stem {
     height: 98px;
-}
-
-.plant.stage-4 .leaf {
-    width: 58px;
-    height: 36px;
 }
 
 .plant.stage-5 .stem,
@@ -208,11 +252,28 @@ body {
     height: 105px;
 }
 
+.plant.stage-2 .leaf {
+    width: 50px;
+    height: 30px;
+}
+
+.plant.stage-3 .leaf {
+    width: 55px;
+    height: 33px;
+}
+
+.plant.stage-4 .leaf {
+    width: 58px;
+    height: 36px;
+}
+
 .plant.stage-5 .leaf,
 .plant.stage-6 .leaf {
     width: 60px;
     height: 38px;
 }
+
+/* Flower colors */
 
 .flower-sprout .leaf-left {
     background: #81ad6d;
@@ -286,23 +347,25 @@ body {
     background: #f4c47e;
 }
 
+/* Flower pot */
+
 .pot {
     position: relative;
+    z-index: 3;
+    flex-shrink: 0;
     width: 95px;
     height: 70px;
-    flex-shrink: 0;
-    z-index: 3;
 }
 
 .pot-rim {
     position: absolute;
+    z-index: 2;
     top: 0;
     left: -5px;
     width: 105px;
     height: 13px;
-    background: #d3a17d;
     border-radius: 5px;
-    z-index: 2;
+    background: #d3a17d;
 }
 
 .pot-body {
@@ -311,22 +374,26 @@ body {
     left: 0;
     width: 95px;
     height: 57px;
+    border-radius: 3px;
     background: var(--brown);
     clip-path: polygon(0 0, 100% 0, 83% 100%, 17% 100%);
-    border-radius: 3px;
 }
 
+/* Plant information */
+
 .plant-name {
+    color: var(--dark-green);
     font-size: 19px;
     font-weight: 800;
-    color: var(--dark-green);
 }
 
 .plant-description {
+    margin-top: 5px;
     color: var(--muted);
     font-size: 13px;
-    margin-top: 5px;
 }
+
+/* Growth progress */
 
 .progress-container {
     margin: 28px 0 22px;
@@ -336,69 +403,84 @@ body {
 .progress-info {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 700;
     margin-bottom: 9px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .progress-bar {
     width: 100%;
     height: 10px;
-    background: #e9eddf;
-    border-radius: 20px;
     overflow: hidden;
+    border-radius: 20px;
+    background: #e9eddf;
 }
 
 .progress-fill {
     width: 0%;
     height: 100%;
-    background: #82aa70;
     border-radius: 20px;
+    background: #82aa70;
     transition: width .4s ease;
 }
 
-.water-button {
+/* Shared green buttons */
+
+.water-button,
+.buy-button,
+.seed-button,
+.select-flower {
+    border: none;
     background: var(--green);
     color: white;
-    border: none;
-    padding: 15px 20px;
-    width: 100%;
-    border-radius: 13px;
     font-family: inherit;
-    cursor: pointer;
+    font-weight: 800;
     transition: background .2s, transform .2s;
 }
 
-.water-button:hover:not(:disabled) {
+.water-button:hover:not(:disabled),
+.buy-button:hover:not(:disabled),
+.seed-button:hover:not(:disabled),
+.select-flower:hover:not(:disabled) {
     background: var(--dark-green);
     transform: translateY(-2px);
 }
 
-#water-label {
+/* Watering button */
+
+.water-button {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 13px;
+}
+
+.water-button:disabled {
+    background: #a5b39a;
+    transform: none;
+}
+
+#water-label,
+#water-amount {
     display: block;
+}
+
+#water-label {
     font-size: 18px;
     font-weight: 800;
 }
 
 #water-amount {
-    display: block;
+    margin-top: 3px;
     font-size: 16px;
     font-weight: 700;
     opacity: .9;
-    margin-top: 3px;
-}
-
-.water-button:disabled {
-    background: #a5b39a;
-    cursor: not-allowed;
-    transform: none;
 }
 
 .passive-info {
     margin-top: 15px;
-    font-size: 12px;
     color: var(--green);
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -408,6 +490,8 @@ body {
     font-size: 12px;
 }
 
+/* Garden statistics */
+
 .garden-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -416,10 +500,10 @@ body {
 }
 
 .stat-card {
-    background: var(--cream);
-    border: 1px solid #e9ebdf;
     padding: 20px 10px;
+    border: 1px solid var(--border);
     border-radius: 17px;
+    background: var(--cream);
     text-align: center;
 }
 
@@ -428,9 +512,9 @@ body {
 }
 
 .stat-card p {
-    font-size: 12px;
-    color: var(--muted);
     margin: 6px 0;
+    color: var(--muted);
+    font-size: 12px;
 }
 
 .stat-card h2 {
@@ -438,14 +522,16 @@ body {
     font-size: 23px;
 }
 
+/* Shop and collection sections */
+
 .shop,
 .collection {
     max-width: 600px;
     margin: 35px auto 0;
     padding: 30px;
-    background: var(--cream);
-    border: 1px solid #e9ebdf;
+    border: 1px solid var(--border);
     border-radius: 22px;
+    background: var(--cream);
     box-shadow: 0 8px 30px #5263430a;
 }
 
@@ -454,32 +540,38 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
     gap: 12px;
+    margin-bottom: 25px;
+}
+
+.collection-heading {
+    margin-bottom: 20px;
 }
 
 .shop-heading h2,
 .collection-heading h2 {
+    margin-bottom: 5px;
     color: var(--dark-green);
     font-size: 25px;
-    margin-bottom: 5px;
 }
 
 .shop-heading>div>p:last-child,
 .collection-heading>div>p:last-child {
-    font-size: 13px;
     color: var(--muted);
+    font-size: 13px;
 }
 
 .shop-currency,
 .collection-count {
-    background: var(--light-green);
-    color: var(--dark-green);
     padding: 10px 15px;
     border-radius: 12px;
+    background: var(--light-green);
+    color: var(--dark-green);
     font-weight: 800;
     white-space: nowrap;
 }
+
+/* Shop upgrades */
 
 .upgrade-list {
     display: flex;
@@ -487,37 +579,39 @@ body {
     gap: 12px;
 }
 
-.upgrade-card {
+.upgrade-card,
+.seed-card {
     display: flex;
     align-items: center;
     gap: 15px;
     padding: 16px;
-    background: #f7f8f1;
-    border: 1px solid #e9ebdf;
+    border: 1px solid var(--border);
     border-radius: 15px;
+    background: var(--card-background);
 }
 
 .upgrade-icon {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
     width: 48px;
     height: 48px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--light-green);
     border-radius: 13px;
+    background: var(--light-green);
     font-size: 25px;
 }
 
-.upgrade-details {
+.upgrade-details,
+.seed-details {
     flex: 1;
     min-width: 0;
 }
 
 .upgrade-details h3 {
+    margin-bottom: 4px;
     color: var(--dark-green);
     font-size: 15px;
-    margin-bottom: 4px;
 }
 
 .upgrade-details p {
@@ -534,36 +628,25 @@ body {
     font-weight: 800;
 }
 
+/* Purchase buttons */
+
 .buy-button,
 .seed-button {
     flex-shrink: 0;
-    border: none;
-    border-radius: 10px;
     padding: 11px 13px;
-    background: var(--green);
-    color: white;
-    font-family: inherit;
+    border-radius: 10px;
     font-size: 13px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background .2s, transform .2s;
-}
-
-.buy-button:hover:not(:disabled),
-.seed-button:hover:not(:disabled),
-.select-flower:hover:not(:disabled) {
-    background: var(--dark-green);
-    transform: translateY(-2px);
 }
 
 .buy-button:disabled,
 .seed-button:disabled {
     background: #d9ded3;
     color: #8d9687;
-    cursor: not-allowed;
+    transform: none;
 }
 
-/* Autoclicker toggle */
+/* Garden helper toggle */
+
 .auto-toggle {
     display: block;
     margin-top: 9px;
@@ -572,11 +655,9 @@ body {
     border-radius: 8px;
     background: var(--light-green);
     color: var(--dark-green);
-    font-family: inherit;
     font-size: 11px;
     font-weight: 800;
-    cursor: pointer;
-    transition: .2s;
+    transition: background .2s;
 }
 
 .auto-toggle:hover:not(:disabled) {
@@ -585,19 +666,18 @@ body {
 
 .auto-toggle:disabled {
     opacity: .5;
-    cursor: not-allowed;
 }
 
+/* Shop message */
+
 .shop-note {
-    text-align: center;
     margin-top: 20px;
     color: var(--muted);
     font-size: 12px;
+    text-align: center;
 }
 
-.collection-heading {
-    margin-bottom: 20px;
-}
+/* Flower collection */
 
 .plant-collection {
     display: grid;
@@ -606,51 +686,46 @@ body {
 }
 
 .collection-card {
-    background: #f7f8f1;
-    border: 1px solid #e9ebdf;
-    border-radius: 15px;
     padding: 15px 8px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: var(--card-background);
     text-align: center;
 }
 
 .collection-emoji {
-    font-size: 30px;
     margin-bottom: 8px;
+    font-size: 30px;
 }
 
 .collection-card h3 {
-    font-size: 13px;
     color: var(--dark-green);
+    font-size: 13px;
 }
 
 .collection-card p {
-    font-size: 11px;
-    color: var(--muted);
     margin: 5px 0 10px;
+    color: var(--muted);
+    font-size: 11px;
 }
 
 .select-flower {
-    border: none;
-    border-radius: 8px;
     padding: 8px 10px;
-    background: var(--green);
-    color: white;
-    font-family: inherit;
+    border-radius: 8px;
     font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: .2s;
 }
 
 .select-flower:disabled {
     background: var(--light-green);
     color: var(--dark-green);
     cursor: default;
+    transform: none;
 }
 
+/* New seeds */
+
 .seed-heading {
-    margin-top: 30px;
-    margin-bottom: 15px;
+    margin: 30px 0 15px;
 }
 
 .seed-heading h3 {
@@ -659,9 +734,9 @@ body {
 }
 
 .seed-heading p {
+    margin-top: 4px;
     color: var(--muted);
     font-size: 12px;
-    margin-top: 4px;
 }
 
 .seed-list {
@@ -671,25 +746,16 @@ body {
 }
 
 .seed-card {
-    display: flex;
-    align-items: center;
     gap: 13px;
     padding: 13px;
-    background: #f7f8f1;
-    border: 1px solid #e9ebdf;
     border-radius: 13px;
 }
 
 .seed-emoji {
-    font-size: 27px;
-    width: 40px;
-    text-align: center;
     flex-shrink: 0;
-}
-
-.seed-details {
-    flex: 1;
-    min-width: 0;
+    width: 40px;
+    font-size: 27px;
+    text-align: center;
 }
 
 .seed-details h4 {
@@ -698,17 +764,19 @@ body {
 }
 
 .seed-details p {
+    margin-top: 3px;
     color: var(--muted);
     font-size: 11px;
-    margin-top: 3px;
 }
 
 .collection-complete {
-    color: var(--green);
-    text-align: center;
-    font-size: 13px;
     padding: 15px 0;
+    color: var(--green);
+    font-size: 13px;
+    text-align: center;
 }
+
+/* Restart and rebirth */
 
 .restart-container {
     display: flex;
@@ -721,18 +789,16 @@ body {
 
 .restart-button,
 .rebirth-button {
-    border-radius: 12px;
     padding: 12px 20px;
-    font-family: inherit;
+    border-radius: 12px;
     font-size: 13px;
     font-weight: 800;
-    cursor: pointer;
     transition: .2s;
 }
 
 .restart-button {
-    background: transparent;
     border: 1px solid #cbd3c3;
+    background: transparent;
     color: var(--muted);
 }
 
@@ -742,8 +808,8 @@ body {
 }
 
 .rebirth-button {
-    background: #e5eddc;
     border: 1px solid #c3d3b8;
+    background: var(--light-green);
     color: var(--dark-green);
 }
 
@@ -754,19 +820,21 @@ body {
 }
 
 .rebirth-button:disabled {
-    background: #e5e7e0;
     border-color: #d9ded3;
+    background: #e5e7e0;
     color: #a2a99c;
-    cursor: not-allowed;
+    transform: none;
 }
 
 .rebirth-info {
-    text-align: center;
+    margin-top: 12px;
     color: var(--muted);
     font-size: 12px;
-    margin-top: 12px;
     line-height: 1.6;
+    text-align: center;
 }
+
+/* Animations */
 
 @keyframes gentle-sway {
 
@@ -780,25 +848,33 @@ body {
     }
 }
 
+/* Footer */
+
 footer {
-    text-align: center;
     padding: 25px;
-    font-size: 12px;
     color: var(--muted);
+    font-size: 12px;
+    text-align: center;
 }
+
+/* Mobile layout */
 
 @media (max-width: 550px) {
     .header {
-        padding: 18px 5%;
         flex-direction: column;
         gap: 15px;
+        padding: 18px 5%;
     }
 
     .resources {
+        justify-content: center;
         gap: 12px;
         font-size: 11px;
-        flex-wrap: wrap;
-        justify-content: center;
+    }
+
+    .mute-button {
+        padding: 7px 10px;
+        font-size: 11px;
     }
 
     .garden {
@@ -865,6 +941,8 @@ footer {
     }
 }
 
+/* Reduced motion accessibility */
+
 @media (prefers-reduced-motion: reduce) {
 
     *,
@@ -873,25 +951,4 @@ footer {
         animation-duration: .01ms !important;
         transition-duration: .01ms !important;
     }
-}
-
-/* Prevent accidental double-tap zoom on interactive elements */
-button,
-a,
-input,
-select,
-textarea {
-    touch-action: manipulation;
-}
-
-/* Prevent text selection while repeatedly tapping game buttons */
-button {
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Prevent iOS from automatically zooming into form fields */
-input,
-select,
-textarea {
-    font-size: 16px;
 }

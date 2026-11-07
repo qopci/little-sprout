@@ -8,15 +8,11 @@ const AUTO_CLICK_INTERVAL = 1000;
 
 const SAVE_KEY = "littleSproutSave";
 const REBIRTH_REWARD = 25;
-
 const SUN_PER_CLICK = 1;
+const SOUND_KEY = "littleSproutMuted";
 
 const growthRequirements = [
-    500,
-    1200,
-    2200,
-    3500,
-    5000
+    500, 1200, 2200, 3500, 5000
 ];
 
 const stageNames = [
@@ -37,9 +33,9 @@ const stageDescriptions = [
     "You've grown something beautiful."
 ];
 
-// =================================
+// ============================================
 // FLOWER COLLECTION
-// =================================
+// ============================================
 
 const availablePlants = [
     {
@@ -86,9 +82,181 @@ const availablePlants = [
     }
 ];
 
-// =================================
+// ============================================
+// AUDIO SYSTEM
+// ============================================
+
+let audioContext = null;
+
+let soundsMuted = (() => {
+    try {
+        return localStorage.getItem(SOUND_KEY) === "true";
+    } catch {
+        return false;
+    }
+})();
+
+const muteButton = document.getElementById("mute-button");
+
+function initializeAudio() {
+    if (soundsMuted) return null;
+
+    const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return null;
+
+    if (!audioContext) {
+        audioContext = new AudioContextClass();
+    }
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume().catch(() => {});
+    }
+
+    return audioContext;
+}
+
+function playTone(frequency, startTime, duration, volume, type = "sine") {
+    const context = initializeAudio();
+
+    if (!context || soundsMuted) return;
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(
+        frequency,
+        startTime
+    );
+
+    gain.gain.setValueAtTime(0, startTime);
+
+    gain.gain.linearRampToValueAtTime(
+        volume,
+        startTime + 0.015
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        startTime + duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.03);
+}
+
+// Cozy, gentle plant-growing sound.
+
+function playGrowSound() {
+    const context = initializeAudio();
+    if (!context) return;
+
+    const now = context.currentTime;
+
+    playTone(523.25, now, 0.22, 0.055);
+    playTone(659.25, now + 0.07, 0.25, 0.045);
+    playTone(783.99, now + 0.14, 0.35, 0.035);
+}
+
+// Soft purchase confirmation.
+
+function playPurchaseSound() {
+    const context = initializeAudio();
+    if (!context) return;
+
+    const now = context.currentTime;
+
+    playTone(587.33, now, 0.18, 0.045);
+    playTone(783.99, now + 0.09, 0.25, 0.05);
+}
+
+// A brighter sound when a new flower is unlocked.
+
+function playFlowerSound() {
+    const context = initializeAudio();
+    if (!context) return;
+
+    const now = context.currentTime;
+
+    playTone(523.25, now, 0.3, 0.045);
+    playTone(659.25, now + 0.12, 0.3, 0.05);
+    playTone(783.99, now + 0.24, 0.35, 0.05);
+    playTone(1046.5, now + 0.36, 0.45, 0.04);
+}
+
+// A gentle little chime when switching between flowers.
+
+function playSelectFlowerSound() {
+    const context = initializeAudio();
+    if (!context) return;
+
+    const now = context.currentTime;
+
+    playTone(659.25, now, 0.18, 0.035);
+    playTone(783.99, now + 0.08, 0.24, 0.03);
+}
+
+// Shared sound for restart and rebirth.
+
+function playResetSound() {
+    const context = initializeAudio();
+    if (!context) return;
+
+    const now = context.currentTime;
+
+    playTone(783.99, now, 0.25, 0.045);
+    playTone(659.25, now + 0.13, 0.25, 0.04);
+    playTone(523.25, now + 0.26, 0.4, 0.045);
+}
+
+// Mute button.
+
+function updateMuteButton() {
+    if (!muteButton) return;
+
+    muteButton.textContent = soundsMuted
+        ? "🔇 Sound off"
+        : "🔊 Sound on";
+
+    muteButton.setAttribute(
+        "aria-label",
+        soundsMuted ? "Unmute sounds" : "Mute sounds"
+    );
+
+    muteButton.setAttribute(
+        "aria-pressed",
+        String(soundsMuted)
+    );
+}
+
+function toggleMute() {
+    soundsMuted = !soundsMuted;
+
+    try {
+        localStorage.setItem(
+            SOUND_KEY,
+            String(soundsMuted)
+        );
+    } catch (error) {
+        console.error("Could not save sound setting:", error);
+    }
+
+    if (!soundsMuted) {
+        initializeAudio();
+        playPurchaseSound();
+    }
+
+    updateMuteButton();
+}
+
+// ============================================
 // GAME STATE
-// =================================
+// ============================================
 
 function createFlowerProgress() {
     return {
@@ -118,9 +286,9 @@ let unlockedPlants = ["sprout"];
 
 let rebirthCount = 0;
 
-// =================================
+// ============================================
 // HTML ELEMENTS
-// =================================
+// ============================================
 
 const $ = id => document.getElementById(id);
 
@@ -174,9 +342,9 @@ const restartButton = $("restart-button");
 const rebirthButton = $("rebirth-button");
 const rebirthInfo = $("rebirth-info");
 
-// =================================
+// ============================================
 // CURRENT FLOWER HELPERS
-// =================================
+// ============================================
 
 function getCurrentFlower() {
     return flowerProgress[selectedPlant];
@@ -206,9 +374,9 @@ function getStartingSunlight() {
     return rebirthCount * REBIRTH_REWARD;
 }
 
-// =================================
+// ============================================
 // GROWTH HELPERS
-// =================================
+// ============================================
 
 function addGrowth(amount) {
     const flower = getCurrentFlower();
@@ -227,9 +395,9 @@ function addGrowth(amount) {
     return flower.growth !== oldGrowth;
 }
 
-// =================================
+// ============================================
 // WATERING
-// =================================
+// ============================================
 
 function waterPlant() {
     if (isFullyGrown(getCurrentFlower())) return;
@@ -244,13 +412,15 @@ function waterPlant() {
 
     sunlight += SUN_PER_CLICK;
 
+    playGrowSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // CLICKING THE PLANT
-// =================================
+// ============================================
 
 function clickPlant() {
     if (isFullyGrown(getCurrentFlower())) return;
@@ -261,13 +431,15 @@ function clickPlant() {
 
     sunlight += SUN_PER_CLICK;
 
+    playGrowSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // PASSIVE GROWTH
-// =================================
+// ============================================
 
 function passiveGrowth() {
     if (isFullyGrown(getCurrentFlower())) return;
@@ -280,9 +452,9 @@ function passiveGrowth() {
     saveGame();
 }
 
-// =================================
+// ============================================
 // PASSIVE SUNLIGHT
-// =================================
+// ============================================
 
 function passiveSunlight() {
     if (catcherLevel <= 0) return;
@@ -293,9 +465,9 @@ function passiveSunlight() {
     saveGame();
 }
 
-// =================================
+// ============================================
 // AUTO CLICKER
-// =================================
+// ============================================
 
 function autoClick() {
     if (autoClickerLevel <= 0) return;
@@ -307,6 +479,8 @@ function autoClick() {
     if (!changed) return;
 
     sunlight += SUN_PER_CLICK * autoClickerLevel;
+
+    // Automatic growth stays silent.
 
     updateGame();
     saveGame();
@@ -322,16 +496,16 @@ function toggleAutoClicker() {
     autoClickerEnabled = !autoClickerEnabled;
 
     shopNote.textContent = autoClickerEnabled
-        ? "Your garden helper is back to work! 🤖"
+        ? "Your garden helper is back to work!"
         : "Your garden helper is taking a little break. ♡";
 
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // GROWTH STAGES AND REWARDS
-// =================================
+// ============================================
 
 function calculateStage(growth) {
     let calculatedStage = 1;
@@ -359,9 +533,9 @@ function checkGrowthStage() {
     }
 }
 
-// =================================
+// ============================================
 // PLANT APPEARANCE
-// =================================
+// ============================================
 
 function updatePlantAppearance() {
     const flower = getCurrentFlower();
@@ -382,8 +556,7 @@ function updatePlantAppearance() {
             ? "Your first sprout ♡"
             : `Your ${selectedFlower.name.toLowerCase()} ♡`;
 
-    plantStage.textContent =
-        stageNames[currentStage - 1];
+    plantStage.textContent = stageNames[currentStage - 1];
 
     plantDescription.textContent =
         stageDescriptions[currentStage - 1];
@@ -397,7 +570,7 @@ function updatePlantAppearance() {
         waterAmount.textContent = "";
 
         passiveInfo.textContent =
-            "Your little plant has reached its full potential. ♡";
+            "Your little plant has reached its full potential.";
 
     } else {
         waterButton.disabled = false;
@@ -413,9 +586,9 @@ function updatePlantAppearance() {
     }
 }
 
-// =================================
+// ============================================
 // PROGRESS BAR
-// =================================
+// ============================================
 
 function updateProgress() {
     const flower = getCurrentFlower();
@@ -452,8 +625,7 @@ function updateProgress() {
     progressText.textContent =
         `${flower.growth} / ${requirement}`;
 
-    progressFill.style.width =
-        `${percentage}%`;
+    progressFill.style.width = `${percentage}%`;
 
     progressBar.setAttribute(
         "aria-valuenow",
@@ -461,9 +633,9 @@ function updateProgress() {
     );
 }
 
-// =================================
+// ============================================
 // UPGRADE COSTS
-// =================================
+// ============================================
 
 function getCompostCost() {
     return 4 + compostLevel * 4;
@@ -481,9 +653,9 @@ function getFertilizerCost() {
     return 12 + fertilizerLevel * 12;
 }
 
-// =================================
+// ============================================
 // BUY UPGRADE HELPER
-// =================================
+// ============================================
 
 function buyUpgrade(cost, level, callback, message) {
     if (level >= MAX_UPGRADE_LEVEL) return;
@@ -495,13 +667,15 @@ function buyUpgrade(cost, level, callback, message) {
 
     shopNote.textContent = message;
 
+    playPurchaseSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // BUY UPGRADES
-// =================================
+// ============================================
 
 function buyCompost() {
     buyUpgrade(
@@ -548,9 +722,9 @@ function buyAutoClicker() {
     );
 }
 
-// =================================
+// ============================================
 // UPDATE SHOP
-// =================================
+// ============================================
 
 function updateShop() {
     shopSunlight.textContent = sunlight;
@@ -619,12 +793,13 @@ function updateShop() {
     );
 }
 
-// =================================
+// ============================================
 // FLOWER SELECTION
-// =================================
+// ============================================
 
 function selectFlower(id) {
     if (!unlockedPlants.includes(id)) return;
+    if (selectedPlant === id) return;
 
     if (!flowerProgress[id]) {
         flowerProgress[id] = createFlowerProgress();
@@ -632,13 +807,15 @@ function selectFlower(id) {
 
     selectedPlant = id;
 
+    playSelectFlowerSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // FLOWER COLLECTION DISPLAY
-// =================================
+// ============================================
 
 function renderCollection() {
     const collected = availablePlants.filter(
@@ -705,9 +882,9 @@ function renderCollection() {
     `).join("");
 }
 
-// =================================
+// ============================================
 // BUY NEW FLOWERS
-// =================================
+// ============================================
 
 function buySeed(id) {
     const flower = availablePlants.find(
@@ -715,9 +892,7 @@ function buySeed(id) {
     );
 
     if (!flower) return;
-
     if (unlockedPlants.includes(id)) return;
-
     if (sunlight < flower.cost) return;
 
     sunlight -= flower.cost;
@@ -731,13 +906,15 @@ function buySeed(id) {
     shopNote.textContent =
         `${flower.name} joined your garden! ${flower.emoji}`;
 
+    playFlowerSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // REBIRTH SYSTEM
-// =================================
+// ============================================
 
 function updateRebirth() {
     const canRebirth = hasCompletedFlower();
@@ -757,7 +934,6 @@ function updateRebirth() {
 function rebirthGarden() {
     if (!hasCompletedFlower()) return;
 
-    // No confirmation popup for rebirth.
     rebirthCount++;
 
     sunlight = getStartingSunlight();
@@ -780,13 +956,15 @@ function rebirthGarden() {
     shopNote.textContent =
         `A fresh beginning! You received ${sunlight} starting Sunlight. ✨`;
 
+    playResetSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // UPDATE GAME INTERFACE
-// =================================
+// ============================================
 
 function updateGame() {
     checkGrowthStage();
@@ -807,9 +985,9 @@ function updateGame() {
     updateRebirth();
 }
 
-// =================================
+// ============================================
 // SAVE GAME
-// =================================
+// ============================================
 
 function saveGame() {
     const gameData = {
@@ -839,9 +1017,9 @@ function saveGame() {
     }
 }
 
-// =================================
+// ============================================
 // LOAD GAME
-// =================================
+// ============================================
 
 function loadGame() {
     try {
@@ -934,7 +1112,9 @@ function loadGame() {
                     stage: calculateStage(savedGrowth)
                 };
             });
+
         } else if (typeof data.growth !== "undefined") {
+
             const savedGrowth = Math.min(
                 MAX_GROWTH,
                 safeNumber(data.growth)
@@ -979,12 +1159,11 @@ function loadGame() {
     }
 }
 
-// =================================
+// ============================================
 // FULL RESTART
-// =================================
+// ============================================
 
 function restartGame() {
-    // Keep confirmation popup for a full restart.
     const confirmed = confirm(
         "Are you sure you want to restart your garden?\n\n" +
         "All growth, sunlight, upgrades, collected flowers, and rebirths will be permanently lost."
@@ -1014,15 +1193,18 @@ function restartGame() {
     shopNote.textContent =
         "Little improvements make a big difference. ♡";
 
+    playResetSound();
+
     updateGame();
     saveGame();
 }
 
-// =================================
+// ============================================
 // EVENT LISTENERS
-// =================================
+// ============================================
 
 waterButton.addEventListener("click", waterPlant);
+
 plantButton.addEventListener("click", clickPlant);
 
 buyCompostButton.addEventListener("click", buyCompost);
@@ -1035,6 +1217,10 @@ autoToggleButton.addEventListener("click", toggleAutoClicker);
 
 restartButton.addEventListener("click", restartGame);
 rebirthButton.addEventListener("click", rebirthGarden);
+
+if (muteButton) {
+    muteButton.addEventListener("click", toggleMute);
+}
 
 plantCollection.addEventListener("click", event => {
     const button = event.target.closest("[data-select]");
@@ -1052,9 +1238,17 @@ seedList.addEventListener("click", event => {
     buySeed(button.dataset.seed);
 });
 
-// =================================
+document.addEventListener("pointerdown", () => {
+    if (!soundsMuted) {
+        initializeAudio();
+    }
+}, { once: true });
+
+// ============================================
 // START GAME
-// =================================
+// ============================================
+
+updateMuteButton();
 
 loadGame();
 

@@ -443,3 +443,192 @@ footer {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* =================================
+   PASSIVE GROWTH
+================================= */
+
+.passive-info {
+    margin-top: 15px;
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 700;
+}
+
+/* =================================
+   GARDEN SHOP
+================================= */
+
+.shop {
+    max-width: 600px;
+    margin: 35px auto 0;
+    padding: 30px;
+    background: var(--cream);
+    border: 1px solid #e9ebdf;
+    border-radius: 22px;
+    box-shadow: 0 8px 30px #5263430a;
+}
+
+.shop-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.shop-heading h2 {
+    color: var(--dark-green);
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
+.shop-heading > div > p:last-child {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.shop-currency {
+    background: var(--light-green);
+    color: var(--dark-green);
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-weight: 800;
+}
+
+/* Upgrade cards */
+
+.upgrade-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.upgrade-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px;
+    background: #f7f8f1;
+    border: 1px solid #e9ebdf;
+    border-radius: 15px;
+}
+
+.upgrade-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-green);
+    border-radius: 13px;
+    font-size: 25px;
+}
+
+.upgrade-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.upgrade-details h3 {
+    color: var(--dark-green);
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.upgrade-details p {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.upgrade-level {
+    display: inline-block;
+    margin-top: 7px;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* Purchase buttons */
+
+.buy-button {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 13px;
+    background: var(--green);
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.buy-button:hover:not(:disabled) {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+}
+
+.buy-button:disabled {
+    background: #d9ded3;
+    color: #8d9687;
+    cursor: not-allowed;
+}
+
+.shop-note {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* Fully grown state */
+
+.water-button:disabled {
+    background: #a5b39a;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Mobile shop */
+
+@media (max-width: 550px) {
+    .shop {
+        padding: 22px 15px;
+    }
+
+    .shop-heading {
+        gap: 10px;
+    }
+
+    .shop-heading h2 {
+        font-size: 21px;
+    }
+
+    .upgrade-card {
+        gap: 10px;
+        padding: 12px 9px;
+    }
+
+    .upgrade-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 21px;
+    }
+
+    .upgrade-details h3 {
+        font-size: 13px;
+    }
+
+    .upgrade-details p {
+        font-size: 11px;
+    }
+
+    .buy-button {
+        padding: 10px;
+        font-size: 12px;
+    }
+}

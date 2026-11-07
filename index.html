@@ -9,7 +9,6 @@
 
     <link rel="icon" type="image/png" href="favicon-sprout.png">
     <link rel="stylesheet" href="style.css">
-
     <script src="script.js" defer></script>
 </head>
 
@@ -38,19 +37,14 @@
                 A tiny beginning
             </p>
 
-            <button
-                class="plant-button"
-                id="plant-button"
-                aria-label="Give your plant some love"
-            >
+            <button class="plant-button" id="plant-button"
+                aria-label="Give your plant some love">
+
                 <div class="plant stage-1" id="plant">
-
                     <div class="stem"></div>
-
                     <div class="leaf leaf-left"></div>
                     <div class="leaf leaf-right"></div>
                     <div class="leaf leaf-top"></div>
-
                 </div>
 
                 <div class="pot">
@@ -66,30 +60,31 @@
             </p>
 
             <div class="progress-container">
-
                 <div class="progress-info">
                     <span>Next growth stage</span>
                     <span id="progress-text">0 / 50</span>
                 </div>
 
-                <div
-                    class="progress-bar"
+                <div class="progress-bar"
                     role="progressbar"
                     aria-label="Plant growth progress"
                     aria-valuemin="0"
                     aria-valuemax="100"
                     aria-valuenow="0"
-                    id="progress-bar"
-                >
+                    id="progress-bar">
+
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
-
             </div>
 
             <button class="water-button" id="water-button">
                 💧 Water your plant
-                <span>+5 growth</span>
+                <span id="water-amount">+5 growth</span>
             </button>
+
+            <p class="passive-info" id="passive-info">
+                ⟢ Your garden grows automatically!
+            </p>
 
         </section>
 
@@ -112,6 +107,64 @@
                 <p>Plant stage</p>
                 <h2 id="stage-count">1</h2>
             </div>
+
+        </section>
+
+        <!-- Upgrade shop -->
+
+        <section class="shop">
+
+            <div class="shop-heading">
+                <div>
+                    <p class="eyebrow">GROW A LITTLE FASTER</p>
+                    <h2>Garden shop 🪴</h2>
+                    <p>Use sunlight to improve your garden.</p>
+                </div>
+
+                <div class="shop-currency">
+                    ☀️ <span id="shop-sunlight">0</span>
+                </div>
+            </div>
+
+            <div class="upgrade-list">
+
+                <article class="upgrade-card">
+                    <div class="upgrade-icon">🍂</div>
+
+                    <div class="upgrade-details">
+                        <h3>Rich compost</h3>
+                        <p>Increases automatic growth by +1.</p>
+                        <span class="upgrade-level">
+                            Level <span id="compost-level">0</span>
+                        </span>
+                    </div>
+
+                    <button class="buy-button" id="buy-compost">
+                        ☀️ 4
+                    </button>
+                </article>
+
+                <article class="upgrade-card">
+                    <div class="upgrade-icon">🫗</div>
+
+                    <div class="upgrade-details">
+                        <h3>Better watering can</h3>
+                        <p>Watering gives an additional +5 growth.</p>
+                        <span class="upgrade-level">
+                            Level <span id="can-level">0</span>
+                        </span>
+                    </div>
+
+                    <button class="buy-button" id="buy-can">
+                        ☀️ 6
+                    </button>
+                </article>
+
+            </div>
+
+            <p class="shop-note" id="shop-note">
+                Little improvements make a big difference. ♡
+            </p>
 
         </section>
 

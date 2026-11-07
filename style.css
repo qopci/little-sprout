@@ -988,3 +988,84 @@ footer {
         scroll-behavior: auto !important;
     }
 }
+
+/* ============================================
+   GAME COMPLETION SCREEN
+============================================ */
+
+.game-over-screen {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: rgba(40, 53, 37, .65);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+
+.game-over-screen[hidden] {
+    display: none;
+}
+
+.game-over-card {
+    width: 100%;
+    max-width: 460px;
+    padding: 40px 30px;
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    background: var(--cream);
+    box-shadow: 0 15px 50px #26352230;
+    text-align: center;
+    animation: game-over-appear .5s ease both;
+}
+
+.game-over-flowers {
+    margin: 15px 0 20px;
+    font-size: 30px;
+    line-height: 1.8;
+}
+
+.game-over-card h2 {
+    margin-bottom: 12px;
+    color: var(--dark-green);
+    font-size: 30px;
+}
+
+.game-over-card>p:not(.eyebrow) {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.game-over-card .game-over-message {
+    margin-top: 12px;
+    color: var(--green);
+    font-weight: 800;
+}
+
+.game-over-card .restart-button {
+    margin-top: 25px;
+    border-color: var(--green);
+    background: var(--green);
+    color: white;
+}
+
+.game-over-card .restart-button:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+}
+
+@keyframes game-over-appear {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

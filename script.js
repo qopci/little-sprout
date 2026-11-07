@@ -198,6 +198,9 @@ const rebirthInfo = $("rebirth-info");
 
 const muteButton = $("mute-button");
 
+const gameOverScreen = $("game-over-screen");
+const gameOverRestartButton = $("game-over-restart");
+
 /* ============================================
    AUDIO
 ============================================ */
@@ -238,7 +241,6 @@ function unlockAudio() {
 
     audioUnlockPromise = context.resume()
         .catch(() => {
-       
         })
         .finally(() => {
             audioUnlockPromise = null;
@@ -410,6 +412,47 @@ function getRebirthReward() {
 }
 
 /* ============================================
+   GAME COMPLETION
+============================================ */
+
+function isGameComplete() {
+    const allUpgradesMaxed = [
+        compostLevel,
+        canLevel,
+        catcherLevel,
+        fertilizerLevel,
+        autoClickerLevel
+    ].every(level => level >= MAX_UPGRADE_LEVEL);
+
+    const allFlowersPurchased =
+        unlockedPlants.length === availablePlants.length &&
+        availablePlants.every(item => unlockedPlants.includes(item.id));
+
+    const allFlowersFullyGrown =
+        availablePlants.every(item => {
+            const flower = flowerProgress[item.id];
+
+            return flower && isFullyGrown(flower);
+        });
+
+    return (
+        allUpgradesMaxed &&
+        allFlowersPurchased &&
+        allFlowersFullyGrown
+    );
+}
+
+function updateGameOverScreen() {
+    const completed = isGameComplete();
+
+    gameOverScreen.hidden = !completed;
+
+    if (completed) {
+        gameOverRestartButton.focus();
+    }
+}
+
+/* ============================================
    SAVE GAME
 ============================================ */
 
@@ -537,7 +580,6 @@ function loadGame() {
             };
         });
     } else if (data.growth !== undefined) {
-        // Support older single-flower saves.
         const growth = safeNumber(data.growth, MAX_GROWTH);
 
         flowerProgress.sprout = {
@@ -564,6 +606,8 @@ function loadGame() {
 ============================================ */
 
 function addGrowth(amount) {
+    if (isGameComplete()) return false;
+
     const flower = getCurrentFlower();
 
     if (!flower || isFullyGrown(flower)) return false;
@@ -596,6 +640,8 @@ function checkGrowthStage() {
 ============================================ */
 
 function waterPlant() {
+    if (isGameComplete()) return;
+
     const flower = getCurrentFlower();
 
     if (isFullyGrown(flower)) return;
@@ -611,7 +657,7 @@ function waterPlant() {
 }
 
 function clickPlant() {
-    if (isFullyGrown(getCurrentFlower())) return;
+    if (isGameComplete()) return;
     if (!addGrowth(1)) return;
 
     sunlight += SUN_PER_CLICK;
@@ -627,6 +673,7 @@ function clickPlant() {
 ============================================ */
 
 function passiveGrowth() {
+    if (isGameComplete()) return;
     if (isFullyGrown(getCurrentFlower())) return;
     if (!addGrowth(getPassiveGrowth())) return;
 
@@ -635,6 +682,7 @@ function passiveGrowth() {
 }
 
 function passiveSunlight() {
+    if (isGameComplete()) return;
     if (catcherLevel <= 0) return;
 
     sunlight += catcherLevel;
@@ -648,6 +696,7 @@ function passiveSunlight() {
 ============================================ */
 
 function autoClick() {
+    if (isGameComplete()) return;
     if (autoClickerLevel <= 0 || !autoClickerEnabled) return;
     if (isFullyGrown(getCurrentFlower())) return;
 
@@ -664,6 +713,7 @@ function getAutoClickerCost() {
 }
 
 function toggleAutoClicker() {
+    if (isGameComplete()) return;
     if (autoClickerLevel <= 0) return;
 
     autoClickerEnabled = !autoClickerEnabled;
@@ -711,8 +761,11 @@ function updatePlantAppearance() {
             `Your garden grows +${getPassiveGrowth()} every 10 seconds!`;
     }
 
-    plantButton.disabled = isFullyGrown(flower);
-    waterButton.disabled = isFullyGrown(flower);
+    plantButton.disabled =
+        isFullyGrown(flower) || isGameComplete();
+
+    waterButton.disabled =
+        isFullyGrown(flower) || isGameComplete();
 }
 
 /* ============================================
@@ -829,6 +882,7 @@ const upgrades = {
 ============================================ */
 
 function buyUpgrade(upgrade) {
+    if (isGameComplete()) return;
     if (upgrade.level >= MAX_UPGRADE_LEVEL) return;
     if (sunlight < upgrade.cost) return;
 
@@ -857,10 +911,12 @@ function updateShop() {
 
         upgrade.button.disabled =
             sunlight < upgrade.cost ||
-            upgrade.level >= MAX_UPGRADE_LEVEL;
+            upgrade.level >= MAX_UPGRADE_LEVEL ||
+            isGameComplete();
     });
 
-    autoToggleButton.disabled = autoClickerLevel <= 0;
+    autoToggleButton.disabled =
+        autoClickerLevel <= 0 || isGameComplete();
 
     autoToggleButton.textContent = autoClickerEnabled
         ? "Pause helper"
@@ -879,6 +935,7 @@ function updateShop() {
 ============================================ */
 
 function selectFlower(id) {
+    if (isGameComplete()) return;
     if (!unlockedPlants.includes(id)) return;
     if (selectedPlant === id) return;
 
@@ -925,7 +982,7 @@ function renderCollection() {
                     class="select-flower"
                     type="button"
                     data-select="${item.id}"
-                    ${selected ? "disabled" : ""}
+                    ${selected || isGameComplete() ? "disabled" : ""}
                 >
                     ${selected ? "Selected ✓" : "Select flower"}
                 </button>
@@ -940,7 +997,7 @@ function renderCollection() {
     if (locked.length === 0) {
         seedList.innerHTML = `
             <p class="collection-complete">
-                You've collected every flower! Your garden is beautiful. ♡
+                You've collected every flower! Your garden is beautiful.
             </p>
         `;
 
@@ -961,7 +1018,7 @@ function renderCollection() {
                 class="seed-button"
                 type="button"
                 data-seed="${item.id}"
-                ${sunlight < item.cost ? "disabled" : ""}
+                ${sunlight < item.cost || isGameComplete() ? "disabled" : ""}
             >
                 ☀️ ${item.cost}
             </button>
@@ -974,6 +1031,8 @@ function renderCollection() {
 ============================================ */
 
 function buySeed(id) {
+    if (isGameComplete()) return;
+
     const flower = availablePlants.find(
         item => item.id === id
     );
@@ -1004,7 +1063,7 @@ function buySeed(id) {
 ============================================ */
 
 function updateRebirth() {
-    const canRebirth = hasCompletedFlower();
+    const canRebirth = hasCompletedFlower() && !isGameComplete();
 
     rebirthDisplay.textContent = rebirthCount;
 
@@ -1019,6 +1078,7 @@ function updateRebirth() {
 }
 
 function rebirthGarden() {
+    if (isGameComplete()) return;
     if (!hasCompletedFlower()) return;
 
     const reward = getRebirthReward();
@@ -1086,6 +1146,8 @@ function updateGame() {
     updateShop();
     renderCollection();
     updateRebirth();
+
+    updateGameOverScreen();
 }
 
 /* ============================================
@@ -1109,6 +1171,7 @@ autoToggleButton.addEventListener("click", toggleAutoClicker);
 // Game controls
 restartButton.addEventListener("click", restartGame);
 rebirthButton.addEventListener("click", rebirthGarden);
+gameOverRestartButton.addEventListener("click", restartGame);
 
 // Sound
 muteButton.addEventListener("click", toggleMute);

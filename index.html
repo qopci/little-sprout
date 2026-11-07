@@ -1,45 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Little Sprout</title>
-
     <link rel="icon" type="image/png" href="favicon-sprout.png">
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 
 <body>
-
     <header class="header">
         <a class="logo" href="#">𖧧 Little Sprout</a>
-
         <div class="resources">
             <span>🌱 <span id="growth">0</span> Growth</span>
             <span>☀️ <span id="sunlight">0</span> Sunlight</span>
+            <span>🌟 <span id="rebirth-count">0</span> Rebirths</span>
         </div>
     </header>
 
     <main class="garden">
-
         <section class="welcome">
             <p class="eyebrow">YOUR LITTLE GARDEN</p>
             <h1>A little space to grow.</h1>
             <p>Take care of your plants and watch them flourish.</p>
         </section>
 
-        <!-- Main plant -->
-
         <section class="plant-area">
+            <p class="plant-label" id="plant-stage">A tiny beginning</p>
 
-            <p class="plant-label" id="plant-stage">
-                A tiny beginning
-            </p>
-
-            <button class="plant-button" id="plant-button"
-                aria-label="Give your plant some love">
+            <button class="plant-button" id="plant-button" aria-label="Give your plant some love">
 
                 <div class="plant stage-1 flower-sprout" id="plant">
                     <div class="stem"></div>
@@ -56,29 +47,21 @@
             </button>
 
             <p class="plant-name" id="plant-name">Your first sprout ♡</p>
-
             <p class="plant-description" id="plant-description">
                 Every little bit helps it grow.
             </p>
 
             <div class="progress-container">
-
                 <div class="progress-info">
                     <span>Next growth stage</span>
-                    <span id="progress-text">0 / 100</span>
+                    <span id="progress-text">0 / 500</span>
                 </div>
 
-                <div class="progress-bar"
-                    role="progressbar"
-                    aria-label="Plant growth progress"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    aria-valuenow="0"
-                    id="progress-bar">
+                <div class="progress-bar" role="progressbar" aria-label="Plant growth progress" aria-valuemin="0"
+                    aria-valuemax="100" aria-valuenow="0" id="progress-bar">
 
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
-
             </div>
 
             <button class="water-button" id="water-button">
@@ -90,12 +73,12 @@
                 ⟢ Your garden grows automatically!
             </p>
 
+            <p class="click-reward">
+                ♡ Every plant click earns <strong>+3 sunlight</strong>!
+            </p>
         </section>
 
-        <!-- Statistics -->
-
         <section class="garden-stats">
-
             <div class="stat-card">
                 <span>🌱</span>
                 <p>Total growth</p>
@@ -113,13 +96,9 @@
                 <p>Plant stage</p>
                 <h2 id="stage-count">1</h2>
             </div>
-
         </section>
 
-        <!-- Garden shop -->
-
         <section class="shop">
-
             <div class="shop-heading">
                 <div>
                     <p class="eyebrow">GROW A LITTLE FASTER</p>
@@ -139,9 +118,9 @@
 
                     <div class="upgrade-details">
                         <h3>Rich compost</h3>
-                        <p>Increases automatic growth by +1.</p>
+                        <p>Increases automatic growth by +1 per level.</p>
                         <span class="upgrade-level">
-                            Level <span id="compost-level">0</span>
+                            Level <span id="compost-level">0</span> / 25
                         </span>
                     </div>
 
@@ -155,9 +134,9 @@
 
                     <div class="upgrade-details">
                         <h3>Better watering can</h3>
-                        <p>Watering gives an additional +5 growth.</p>
+                        <p>Watering gives an additional +5 growth per level.</p>
                         <span class="upgrade-level">
-                            Level <span id="can-level">0</span>
+                            Level <span id="can-level">0</span> / 25
                         </span>
                     </div>
 
@@ -173,7 +152,7 @@
                         <h3>Sun catcher</h3>
                         <p>Collects extra sunlight every 30 seconds.</p>
                         <span class="upgrade-level">
-                            Level <span id="catcher-level">0</span>
+                            Level <span id="catcher-level">0</span> / 25
                         </span>
                     </div>
 
@@ -187,9 +166,9 @@
 
                     <div class="upgrade-details">
                         <h3>Growth fertilizer</h3>
-                        <p>Increases automatic growth by +2.</p>
+                        <p>Increases automatic growth by +2 per level.</p>
                         <span class="upgrade-level">
-                            Level <span id="fertilizer-level">0</span>
+                            Level <span id="fertilizer-level">0</span> / 25
                         </span>
                     </div>
 
@@ -198,22 +177,36 @@
                     </button>
                 </article>
 
+                <!-- Garden helper upgrade -->
+
+                <article class="upgrade-card">
+                    <div class="upgrade-icon">🤖</div>
+
+                    <div class="upgrade-details">
+                        <h3>Garden helper</h3>
+                        <p>Automatically clicks your plant every second and earns Sunlight.</p>
+                        <span class="upgrade-level">
+                            Level <span id="auto-clicker-level">0</span>
+                        </span>
+                    </div>
+
+                    <button class="buy-button" id="buy-auto-clicker">
+                        ☀️ 20
+                    </button>
+                </article>
+
             </div>
 
             <p class="shop-note" id="shop-note">
                 Little improvements make a big difference. ♡
             </p>
-
         </section>
 
-        <!-- Flower collection -->
-
         <section class="collection">
-
             <div class="collection-heading">
                 <div>
                     <p class="eyebrow">YOUR GROWING COLLECTION</p>
-                    <h2>My flowers 🌷</h2>
+                    <h2>My flowers 𔓘</h2>
                     <p>Each flower has its own growing journey.</p>
                 </div>
 
@@ -230,22 +223,26 @@
             </div>
 
             <div class="seed-list" id="seed-list"></div>
-
         </section>
-
-        <!-- Restart -->
 
         <div class="restart-container">
             <button class="restart-button" id="restart-button">
                 ↻ Restart garden
             </button>
+
+            <button class="rebirth-button" id="rebirth-button" disabled>
+                ✨ Rebirth
+            </button>
         </div>
 
+        <p class="rebirth-info" id="rebirth-info">
+            Grow a flower completely to unlock rebirth.
+        </p>
     </main>
 
     <footer>
         Made with a little love and sunlight ♡
     </footer>
-
 </body>
+
 </html>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,8 +27,10 @@
         <section class="welcome">
             <p class="eyebrow">YOUR LITTLE GARDEN</p>
             <h1>A little space to grow.</h1>
-            <p>Take care of your plant and watch it flourish.</p>
+            <p>Take care of your plants and watch them flourish.</p>
         </section>
+
+        <!-- Main plant -->
 
         <section class="plant-area">
 
@@ -40,7 +41,7 @@
             <button class="plant-button" id="plant-button"
                 aria-label="Give your plant some love">
 
-                <div class="plant stage-1" id="plant">
+                <div class="plant stage-1 flower-sprout" id="plant">
                     <div class="stem"></div>
                     <div class="leaf leaf-left"></div>
                     <div class="leaf leaf-right"></div>
@@ -51,18 +52,20 @@
                     <div class="pot-rim"></div>
                     <div class="pot-body"></div>
                 </div>
+
             </button>
 
-            <p class="plant-name">Your first sprout ♡</p>
+            <p class="plant-name" id="plant-name">Your first sprout ♡</p>
 
             <p class="plant-description" id="plant-description">
                 Every little bit helps it grow.
             </p>
 
             <div class="progress-container">
+
                 <div class="progress-info">
                     <span>Next growth stage</span>
-                    <span id="progress-text">0 / 50</span>
+                    <span id="progress-text">0 / 100</span>
                 </div>
 
                 <div class="progress-bar"
@@ -75,10 +78,11 @@
 
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
+
             </div>
 
             <button class="water-button" id="water-button">
-                💧 Water your plant
+                <span id="water-label">💧 Water your plant</span>
                 <span id="water-amount">+5 growth</span>
             </button>
 
@@ -87,6 +91,8 @@
             </p>
 
         </section>
+
+        <!-- Statistics -->
 
         <section class="garden-stats">
 
@@ -110,7 +116,7 @@
 
         </section>
 
-        <!-- Upgrade shop -->
+        <!-- Garden shop -->
 
         <section class="shop">
 
@@ -160,6 +166,38 @@
                     </button>
                 </article>
 
+                <article class="upgrade-card">
+                    <div class="upgrade-icon">🌞</div>
+
+                    <div class="upgrade-details">
+                        <h3>Sun catcher</h3>
+                        <p>Collects extra sunlight every 30 seconds.</p>
+                        <span class="upgrade-level">
+                            Level <span id="catcher-level">0</span>
+                        </span>
+                    </div>
+
+                    <button class="buy-button" id="buy-catcher">
+                        ☀️ 10
+                    </button>
+                </article>
+
+                <article class="upgrade-card">
+                    <div class="upgrade-icon">🌱</div>
+
+                    <div class="upgrade-details">
+                        <h3>Growth fertilizer</h3>
+                        <p>Increases automatic growth by +2.</p>
+                        <span class="upgrade-level">
+                            Level <span id="fertilizer-level">0</span>
+                        </span>
+                    </div>
+
+                    <button class="buy-button" id="buy-fertilizer">
+                        ☀️ 12
+                    </button>
+                </article>
+
             </div>
 
             <p class="shop-note" id="shop-note">
@@ -167,6 +205,41 @@
             </p>
 
         </section>
+
+        <!-- Flower collection -->
+
+        <section class="collection">
+
+            <div class="collection-heading">
+                <div>
+                    <p class="eyebrow">YOUR GROWING COLLECTION</p>
+                    <h2>My flowers 🌷</h2>
+                    <p>Each flower has its own growing journey.</p>
+                </div>
+
+                <span class="collection-count" id="collection-count">
+                    1 / 6
+                </span>
+            </div>
+
+            <div class="plant-collection" id="plant-collection"></div>
+
+            <div class="seed-heading">
+                <h3>Find new flowers</h3>
+                <p>Spend sunlight to welcome something new.</p>
+            </div>
+
+            <div class="seed-list" id="seed-list"></div>
+
+        </section>
+
+        <!-- Restart -->
+
+        <div class="restart-container">
+            <button class="restart-button" id="restart-button">
+                ↻ Restart garden
+            </button>
+        </div>
 
     </main>
 

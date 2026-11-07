@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f6f7ef">
-
     <title>Little Sprout</title>
 
     <link rel="icon" type="image/png" href="favicon-sprout.png">
@@ -40,6 +39,7 @@
             <p class="plant-label" id="plant-stage">A tiny beginning</p>
 
             <button class="plant-button" id="plant-button" type="button" aria-label="Give your plant some love">
+
                 <div class="plant stage-1 flower-sprout" id="plant">
                     <div class="stem"></div>
                     <div class="leaf leaf-left"></div>
@@ -77,7 +77,7 @@
             </button>
 
             <p class="passive-info" id="passive-info">
-                ⟢ Your garden grows automatically!
+                Your garden grows automatically!
             </p>
 
             <p class="click-reward">
@@ -122,91 +122,65 @@
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🍂</div>
-
                     <div class="upgrade-details">
                         <h3>Rich compost</h3>
                         <p>Increases automatic growth by +1 per level.</p>
-
                         <span class="upgrade-level">
                             Level <span id="compost-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-compost" type="button">
-                        ☀️ 4
-                    </button>
+                    <button class="buy-button" id="buy-compost" type="button">☀️ 4</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🫗</div>
-
                     <div class="upgrade-details">
                         <h3>Better watering can</h3>
                         <p>Watering gives an additional +5 growth per level.</p>
-
                         <span class="upgrade-level">
                             Level <span id="can-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-can" type="button">
-                        ☀️ 6
-                    </button>
+                    <button class="buy-button" id="buy-can" type="button">☀️ 6</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🌞</div>
-
                     <div class="upgrade-details">
                         <h3>Sun catcher</h3>
                         <p>Collects extra sunlight every 30 seconds.</p>
-
                         <span class="upgrade-level">
                             Level <span id="catcher-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-catcher" type="button">
-                        ☀️ 10
-                    </button>
+                    <button class="buy-button" id="buy-catcher" type="button">☀️ 10</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🌱</div>
-
                     <div class="upgrade-details">
                         <h3>Growth fertilizer</h3>
                         <p>Increases automatic growth by +2 per level.</p>
-
                         <span class="upgrade-level">
                             Level <span id="fertilizer-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-fertilizer" type="button">
-                        ☀️ 12
-                    </button>
+                    <button class="buy-button" id="buy-fertilizer" type="button">☀️ 12</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🤖</div>
-
                     <div class="upgrade-details">
                         <h3>Garden helper</h3>
                         <p>Automatically clicks your plant every second and earns sunlight.</p>
-
                         <span class="upgrade-level">
                             Level <span id="auto-clicker-level">0</span> / 35
                         </span>
-
                         <button class="auto-toggle" id="auto-toggle" type="button" disabled>
                             Pause helper
                         </button>
                     </div>
-
-                    <button class="buy-button" id="buy-auto-clicker" type="button">
-                        ☀️ 20
-                    </button>
+                    <button class="buy-button" id="buy-auto-clicker" type="button">☀️ 20</button>
                 </article>
 
             </div>
@@ -224,9 +198,7 @@
                     <p>Each flower has its own growing journey.</p>
                 </div>
 
-                <span class="collection-count" id="collection-count">
-                    1 / 6
-                </span>
+                <span class="collection-count" id="collection-count">1 / 6</span>
             </div>
 
             <div class="plant-collection" id="plant-collection"></div>
@@ -251,8 +223,32 @@
 
         <p class="rebirth-info" id="rebirth-info">
             Grow any one flower completely to unlock rebirth.
-            Each rebirth gives you 25 more starting sunlight!
         </p>
+
+        <section class="game-over" id="game-over" role="dialog" aria-modal="true" aria-labelledby="game-over-title"
+            hidden>
+
+            <div class="game-over-card">
+                <div class="game-over-flowers">🌷 🌻 🪻 🌹 🏵️</div>
+
+                <p class="eyebrow">A GARDEN FULL OF LOVE</p>
+
+                <h2 id="game-over-title">You've grown it all! ♡</h2>
+
+                <p>
+                    Every flower has found its place, and your garden
+                    is flourishing. What a beautiful little journey!
+                </p>
+
+                <p class="game-over-message">
+                    Thank you for growing with Little Sprout. 🌱
+                </p>
+
+                <button class="game-over-restart" id="game-over-restart" type="button">
+                    ↻ Start a new garden
+                </button>
+            </div>
+        </section>
 
     </main>
 

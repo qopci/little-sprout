@@ -874,3 +874,24 @@ footer {
         transition-duration: .01ms !important;
     }
 }
+
+/* Prevent accidental double-tap zoom on interactive elements */
+button,
+a,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+/* Prevent text selection while repeatedly tapping game buttons */
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent iOS from automatically zooming into form fields */
+input,
+select,
+textarea {
+    font-size: 16px;
+}

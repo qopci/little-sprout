@@ -1,5 +1,6 @@
 const MAX_STAGE = 6;
 const MAX_GROWTH = 5000;
+const MAX_UPGRADE_LEVEL = 35;
 
 const PASSIVE_INTERVAL = 10000;
 const SUN_INTERVAL = 30000;
@@ -8,7 +9,7 @@ const AUTO_CLICK_INTERVAL = 1000;
 const SAVE_KEY = "littleSproutSave";
 const REBIRTH_REWARD = 25;
 
-const SUN_PER_CLICK = 3;
+const SUN_PER_CLICK = 1;
 
 const growthRequirements = [
     500,
@@ -53,35 +54,35 @@ const availablePlants = [
         name: "Tulip",
         emoji: "🌷",
         description: "A lovely spring flower.",
-        cost: 12
+        cost: 100
     },
     {
         id: "lavender",
         name: "Lavender",
         emoji: "🪻",
         description: "A peaceful garden favorite.",
-        cost: 18
+        cost: 250
     },
     {
         id: "sunflower",
         name: "Sunflower",
         emoji: "🌻",
         description: "A little sunshine in your garden.",
-        cost: 25
+        cost: 500
     },
     {
         id: "rose",
         name: "Rose",
         emoji: "🌹",
         description: "A timeless garden beauty.",
-        cost: 35
+        cost: 1000
     },
     {
         id: "hibiscus",
         name: "Hibiscus",
         emoji: "🏵️",
         description: "A bright tropical flower.",
-        cost: 50
+        cost: 2000
     }
 ];
 
@@ -110,6 +111,8 @@ let canLevel = 0;
 let catcherLevel = 0;
 let fertilizerLevel = 0;
 let autoClickerLevel = 0;
+
+let autoClickerEnabled = true;
 
 let unlockedPlants = ["sprout"];
 
@@ -153,11 +156,15 @@ const compostDisplay = $("compost-level");
 const canDisplay = $("can-level");
 const catcherDisplay = $("catcher-level");
 const fertilizerDisplay = $("fertilizer-level");
+const autoClickerDisplay = $("auto-clicker-level");
 
 const buyCompostButton = $("buy-compost");
 const buyCanButton = $("buy-can");
 const buyCatcherButton = $("buy-catcher");
 const buyFertilizerButton = $("buy-fertilizer");
+const buyAutoClickerButton = $("buy-auto-clicker");
+
+const autoToggleButton = $("auto-toggle");
 
 const plantCollection = $("plant-collection");
 const collectionCount = $("collection-count");
@@ -166,10 +173,6 @@ const seedList = $("seed-list");
 const restartButton = $("restart-button");
 const rebirthButton = $("rebirth-button");
 const rebirthInfo = $("rebirth-info");
-
-// Auto-clicker is added dynamically if its HTML button is absent.
-let buyAutoClickerButton = $("buy-auto-clicker");
-let autoClickerDisplay = $("auto-clicker-level");
 
 // =================================
 // CURRENT FLOWER HELPERS
@@ -256,7 +259,6 @@ function clickPlant() {
 
     if (!changed) return;
 
-    // Every plant click earns 3 Sunlight.
     sunlight += SUN_PER_CLICK;
 
     updateGame();
@@ -297,7 +299,7 @@ function passiveSunlight() {
 
 function autoClick() {
     if (autoClickerLevel <= 0) return;
-
+    if (!autoClickerEnabled) return;
     if (isFullyGrown(getCurrentFlower())) return;
 
     const changed = addGrowth(autoClickerLevel);
@@ -312,6 +314,19 @@ function autoClick() {
 
 function getAutoClickerCost() {
     return 20 + autoClickerLevel * 20;
+}
+
+function toggleAutoClicker() {
+    if (autoClickerLevel <= 0) return;
+
+    autoClickerEnabled = !autoClickerEnabled;
+
+    shopNote.textContent = autoClickerEnabled
+        ? "Your garden helper is back to work! 🤖"
+        : "Your garden helper is taking a little break. ♡";
+
+    updateGame();
+    saveGame();
 }
 
 // =================================
@@ -470,7 +485,8 @@ function getFertilizerCost() {
 // BUY UPGRADE HELPER
 // =================================
 
-function buyUpgrade(cost, callback, message) {
+function buyUpgrade(cost, level, callback, message) {
+    if (level >= MAX_UPGRADE_LEVEL) return;
     if (sunlight < cost) return;
 
     sunlight -= cost;
@@ -490,6 +506,7 @@ function buyUpgrade(cost, callback, message) {
 function buyCompost() {
     buyUpgrade(
         getCompostCost(),
+        compostLevel,
         () => compostLevel++,
         "Your compost is making the garden richer! 🍂"
     );
@@ -498,6 +515,7 @@ function buyCompost() {
 function buyCan() {
     buyUpgrade(
         getCanCost(),
+        canLevel,
         () => canLevel++,
         "Your new watering can is ready! 🫗"
     );
@@ -506,6 +524,7 @@ function buyCan() {
 function buyCatcher() {
     buyUpgrade(
         getCatcherCost(),
+        catcherLevel,
         () => catcherLevel++,
         "Your sun catcher is sparkling! 🌞"
     );
@@ -514,6 +533,7 @@ function buyCatcher() {
 function buyFertilizer() {
     buyUpgrade(
         getFertilizerCost(),
+        fertilizerLevel,
         () => fertilizerLevel++,
         "Your soil is getting richer! 🌱"
     );
@@ -522,6 +542,7 @@ function buyFertilizer() {
 function buyAutoClicker() {
     buyUpgrade(
         getAutoClickerCost(),
+        autoClickerLevel,
         () => autoClickerLevel++,
         "Your little helper is growing the garden for you! 🤖"
     );
@@ -538,42 +559,64 @@ function updateShop() {
     canDisplay.textContent = canLevel;
     catcherDisplay.textContent = catcherLevel;
     fertilizerDisplay.textContent = fertilizerLevel;
-
-    if (autoClickerDisplay) {
-        autoClickerDisplay.textContent = autoClickerLevel;
-    }
+    autoClickerDisplay.textContent = autoClickerLevel;
 
     buyCompostButton.textContent =
-        `☀️ ${getCompostCost()}`;
+        compostLevel >= MAX_UPGRADE_LEVEL
+            ? "MAX LEVEL"
+            : `☀️ ${getCompostCost()}`;
 
     buyCanButton.textContent =
-        `☀️ ${getCanCost()}`;
+        canLevel >= MAX_UPGRADE_LEVEL
+            ? "MAX LEVEL"
+            : `☀️ ${getCanCost()}`;
 
     buyCatcherButton.textContent =
-        `☀️ ${getCatcherCost()}`;
+        catcherLevel >= MAX_UPGRADE_LEVEL
+            ? "MAX LEVEL"
+            : `☀️ ${getCatcherCost()}`;
 
     buyFertilizerButton.textContent =
-        `☀️ ${getFertilizerCost()}`;
+        fertilizerLevel >= MAX_UPGRADE_LEVEL
+            ? "MAX LEVEL"
+            : `☀️ ${getFertilizerCost()}`;
 
     buyCompostButton.disabled =
-        sunlight < getCompostCost();
+        sunlight < getCompostCost() ||
+        compostLevel >= MAX_UPGRADE_LEVEL;
 
     buyCanButton.disabled =
-        sunlight < getCanCost();
+        sunlight < getCanCost() ||
+        canLevel >= MAX_UPGRADE_LEVEL;
 
     buyCatcherButton.disabled =
-        sunlight < getCatcherCost();
+        sunlight < getCatcherCost() ||
+        catcherLevel >= MAX_UPGRADE_LEVEL;
 
     buyFertilizerButton.disabled =
-        sunlight < getFertilizerCost();
+        sunlight < getFertilizerCost() ||
+        fertilizerLevel >= MAX_UPGRADE_LEVEL;
 
-    if (buyAutoClickerButton) {
-        buyAutoClickerButton.textContent =
-            `☀️ ${getAutoClickerCost()}`;
+    buyAutoClickerButton.textContent =
+        autoClickerLevel >= MAX_UPGRADE_LEVEL
+            ? "MAX LEVEL"
+            : `☀️ ${getAutoClickerCost()}`;
 
-        buyAutoClickerButton.disabled =
-            sunlight < getAutoClickerCost();
-    }
+    buyAutoClickerButton.disabled =
+        sunlight < getAutoClickerCost() ||
+        autoClickerLevel >= MAX_UPGRADE_LEVEL;
+
+    autoToggleButton.disabled = autoClickerLevel <= 0;
+
+    autoToggleButton.textContent =
+        autoClickerEnabled
+            ? "Pause helper"
+            : "Resume helper";
+
+    autoToggleButton.setAttribute(
+        "aria-pressed",
+        String(autoClickerEnabled)
+    );
 }
 
 // =================================
@@ -707,26 +750,14 @@ function updateRebirth() {
         ? `✨ Rebirth (+${REBIRTH_REWARD * (rebirthCount + 1)} ☀️)`
         : "✨ Rebirth";
 
-    rebirthInfo.textContent = canRebirth
-        ? `Your next rebirth gives you ${REBIRTH_REWARD * (rebirthCount + 1)} starting Sunlight!`
-        : "Grow any one flower completely to unlock rebirth.";
+    rebirthInfo.textContent =
+        "Grow any one flower completely to unlock rebirth. Each rebirth gives you 25 more starting sunlight!";
 }
 
 function rebirthGarden() {
     if (!hasCompletedFlower()) return;
 
-    const nextReward =
-        REBIRTH_REWARD * (rebirthCount + 1);
-
-    const confirmed = confirm(
-        `Ready to rebirth your garden?\n\n` +
-        `Your growth, upgrades, and collected flowers will reset.\n\n` +
-        `You will keep your rebirth progress and receive ${nextReward} starting Sunlight!\n\n` +
-        `Rebirth number: ${rebirthCount + 1}`
-    );
-
-    if (!confirmed) return;
-
+    // No confirmation popup for rebirth.
     rebirthCount++;
 
     sunlight = getStartingSunlight();
@@ -736,6 +767,8 @@ function rebirthGarden() {
     catcherLevel = 0;
     fertilizerLevel = 0;
     autoClickerLevel = 0;
+
+    autoClickerEnabled = true;
 
     unlockedPlants = ["sprout"];
     selectedPlant = "sprout";
@@ -787,6 +820,7 @@ function saveGame() {
         catcherLevel,
         fertilizerLevel,
         autoClickerLevel,
+        autoClickerEnabled,
 
         unlockedPlants,
         selectedPlant,
@@ -829,11 +863,35 @@ function loadGame() {
 
         sunlight = safeNumber(data.sunlight);
 
-        compostLevel = safeNumber(data.compostLevel);
-        canLevel = safeNumber(data.canLevel);
-        catcherLevel = safeNumber(data.catcherLevel);
-        fertilizerLevel = safeNumber(data.fertilizerLevel);
-        autoClickerLevel = safeNumber(data.autoClickerLevel);
+        compostLevel = Math.min(
+            MAX_UPGRADE_LEVEL,
+            safeNumber(data.compostLevel)
+        );
+
+        canLevel = Math.min(
+            MAX_UPGRADE_LEVEL,
+            safeNumber(data.canLevel)
+        );
+
+        catcherLevel = Math.min(
+            MAX_UPGRADE_LEVEL,
+            safeNumber(data.catcherLevel)
+        );
+
+        fertilizerLevel = Math.min(
+            MAX_UPGRADE_LEVEL,
+            safeNumber(data.fertilizerLevel)
+        );
+
+        autoClickerLevel = Math.min(
+            MAX_UPGRADE_LEVEL,
+            safeNumber(data.autoClickerLevel)
+        );
+
+        autoClickerEnabled =
+            typeof data.autoClickerEnabled === "boolean"
+                ? data.autoClickerEnabled
+                : true;
 
         rebirthCount = safeNumber(data.rebirthCount);
 
@@ -908,6 +966,8 @@ function loadGame() {
         fertilizerLevel = 0;
         autoClickerLevel = 0;
 
+        autoClickerEnabled = true;
+
         rebirthCount = 0;
 
         unlockedPlants = ["sprout"];
@@ -924,6 +984,7 @@ function loadGame() {
 // =================================
 
 function restartGame() {
+    // Keep confirmation popup for a full restart.
     const confirmed = confirm(
         "Are you sure you want to restart your garden?\n\n" +
         "All growth, sunlight, upgrades, collected flowers, and rebirths will be permanently lost."
@@ -938,6 +999,8 @@ function restartGame() {
     catcherLevel = 0;
     fertilizerLevel = 0;
     autoClickerLevel = 0;
+
+    autoClickerEnabled = true;
 
     rebirthCount = 0;
 
@@ -966,10 +1029,9 @@ buyCompostButton.addEventListener("click", buyCompost);
 buyCanButton.addEventListener("click", buyCan);
 buyCatcherButton.addEventListener("click", buyCatcher);
 buyFertilizerButton.addEventListener("click", buyFertilizer);
+buyAutoClickerButton.addEventListener("click", buyAutoClicker);
 
-if (buyAutoClickerButton) {
-    buyAutoClickerButton.addEventListener("click", buyAutoClicker);
-}
+autoToggleButton.addEventListener("click", toggleAutoClicker);
 
 restartButton.addEventListener("click", restartGame);
 rebirthButton.addEventListener("click", rebirthGarden);

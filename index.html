@@ -43,7 +43,6 @@
                     <div class="pot-rim"></div>
                     <div class="pot-body"></div>
                 </div>
-
             </button>
 
             <p class="plant-name" id="plant-name">Your first sprout ♡</p>
@@ -74,7 +73,7 @@
             </p>
 
             <p class="click-reward">
-                ♡ Every plant click earns <strong>+3 sunlight</strong>!
+                ♡ Every plant click earns <strong>+1 sunlight</strong>!
             </p>
         </section>
 
@@ -115,84 +114,65 @@
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🍂</div>
-
                     <div class="upgrade-details">
                         <h3>Rich compost</h3>
                         <p>Increases automatic growth by +1 per level.</p>
                         <span class="upgrade-level">
-                            Level <span id="compost-level">0</span> / 25
+                            Level <span id="compost-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-compost">
-                        ☀️ 4
-                    </button>
+                    <button class="buy-button" id="buy-compost">☀️ 4</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🫗</div>
-
                     <div class="upgrade-details">
                         <h3>Better watering can</h3>
                         <p>Watering gives an additional +5 growth per level.</p>
                         <span class="upgrade-level">
-                            Level <span id="can-level">0</span> / 25
+                            Level <span id="can-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-can">
-                        ☀️ 6
-                    </button>
+                    <button class="buy-button" id="buy-can">☀️ 6</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🌞</div>
-
                     <div class="upgrade-details">
                         <h3>Sun catcher</h3>
                         <p>Collects extra sunlight every 30 seconds.</p>
                         <span class="upgrade-level">
-                            Level <span id="catcher-level">0</span> / 25
+                            Level <span id="catcher-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-catcher">
-                        ☀️ 10
-                    </button>
+                    <button class="buy-button" id="buy-catcher">☀️ 10</button>
                 </article>
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🌱</div>
-
                     <div class="upgrade-details">
                         <h3>Growth fertilizer</h3>
                         <p>Increases automatic growth by +2 per level.</p>
                         <span class="upgrade-level">
-                            Level <span id="fertilizer-level">0</span> / 25
+                            Level <span id="fertilizer-level">0</span> / 35
                         </span>
                     </div>
-
-                    <button class="buy-button" id="buy-fertilizer">
-                        ☀️ 12
-                    </button>
+                    <button class="buy-button" id="buy-fertilizer">☀️ 12</button>
                 </article>
-
-                <!-- Garden helper upgrade -->
 
                 <article class="upgrade-card">
                     <div class="upgrade-icon">🤖</div>
-
                     <div class="upgrade-details">
                         <h3>Garden helper</h3>
-                        <p>Automatically clicks your plant every second and earns Sunlight.</p>
+                        <p>Automatically clicks your plant every second and earns sunlight.</p>
                         <span class="upgrade-level">
-                            Level <span id="auto-clicker-level">0</span>
+                            Level <span id="auto-clicker-level">0</span> / 35
                         </span>
+                        <button class="auto-toggle" id="auto-toggle" disabled>
+                            Pause helper
+                        </button>
                     </div>
-
-                    <button class="buy-button" id="buy-auto-clicker">
-                        ☀️ 20
-                    </button>
+                    <button class="buy-button" id="buy-auto-clicker">☀️ 20</button>
                 </article>
 
             </div>
@@ -236,7 +216,7 @@
         </div>
 
         <p class="rebirth-info" id="rebirth-info">
-            Grow a flower completely to unlock rebirth.
+            Grow any one flower completely to unlock rebirth. Each rebirth gives you 25 more starting sunlight!
         </p>
     </main>
 

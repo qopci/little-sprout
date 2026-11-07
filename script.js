@@ -7,12 +7,14 @@ const MAX_UPGRADE_LEVEL = 35;
 const PASSIVE_INTERVAL = 10000;
 const SUN_INTERVAL = 30000;
 const AUTO_CLICK_INTERVAL = 1000;
+const SAVE_INTERVAL = 5000;
 
 const SAVE_KEY = "littleSproutSave";
 const SOUND_KEY = "littleSproutMuted";
 
 const REBIRTH_REWARD = 25;
 const SUN_PER_CLICK = 1;
+const COLLECTION_BONUS = 5;
 
 const growthRequirements = [500, 1200, 2200, 3500, 5000];
 
@@ -34,9 +36,9 @@ const stageDescriptions = [
     "You've grown something beautiful."
 ];
 
-// ============================================
-// FLOWER COLLECTION
-// ============================================
+/* ============================================
+   FLOWER COLLECTION
+============================================ */
 
 const availablePlants = [
     {
@@ -83,9 +85,9 @@ const availablePlants = [
     }
 ];
 
-// ============================================
-// HELPERS
-// ============================================
+/* ============================================
+   HELPERS
+============================================ */
 
 const $ = id => document.getElementById(id);
 
@@ -106,18 +108,16 @@ function createFlowerProgress() {
 }
 
 function calculateStage(growth) {
-    let stage = 1;
-
-    for (const requirement of growthRequirements) {
-        if (growth >= requirement) stage++;
-    }
+    const stage = growthRequirements.filter(
+        requirement => growth >= requirement
+    ).length + 1;
 
     return Math.min(stage, MAX_STAGE);
 }
 
-// ============================================
-// GAME STATE
-// ============================================
+/* ============================================
+   GAME STATE
+============================================ */
 
 let flowerProgress = {
     sprout: createFlowerProgress()
@@ -139,13 +139,11 @@ let unlockedPlants = ["sprout"];
 
 let rebirthCount = 0;
 
-let gameOver = false;
-
 let shopMessage = "Little improvements make a big difference. ♡";
 
-// ============================================
-// DOM ELEMENTS
-// ============================================
+/* ============================================
+   DOM ELEMENTS
+============================================ */
 
 const growthDisplay = $("growth");
 const sunlightDisplay = $("sunlight");
@@ -191,6 +189,7 @@ const autoToggleButton = $("auto-toggle");
 
 const plantCollection = $("plant-collection");
 const collectionCount = $("collection-count");
+const collectionBonusDisplay = $("collection-bonus");
 const seedList = $("seed-list");
 
 const restartButton = $("restart-button");
@@ -199,63 +198,12 @@ const rebirthInfo = $("rebirth-info");
 
 const muteButton = $("mute-button");
 
-// ============================================
-// GAME COMPLETION SCREEN
-// ============================================
-
-// Create the completion screen automatically.
-// This means you do not need to add extra HTML.
-
-function createGameOverScreen() {
-    let screen = $("game-over");
-
-    if (screen) return screen;
-
-    screen = document.createElement("div");
-    screen.id = "game-over";
-    screen.className = "game-over";
-    screen.hidden = true;
-
-    screen.innerHTML = `
-        <div class="game-over-card">
-            <div class="game-over-flowers">🌷 🌻 🌹 🌼</div>
-
-            <p class="eyebrow">A GARDEN FULL OF LOVE</p>
-
-            <h2>Garden complete! ♡</h2>
-
-            <p>
-                You've collected every flower and reached
-                the highest level of every garden upgrade.
-            </p>
-
-            <p class="game-over-message">
-                You've grown something beautiful!
-            </p>
-
-            <button
-                type="button"
-                class="game-over-restart"
-                id="game-over-restart"
-            >
-                🌱 Start a new garden
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(screen);
-
-    return screen;
-}
-
-const gameOverScreen = createGameOverScreen();
-const gameOverRestartButton = $("game-over-restart");
-
-// ============================================
-// AUDIO
-// ============================================
+/* ============================================
+   AUDIO
+============================================ */
 
 let audioContext = null;
+let audioUnlockPromise = null;
 
 let soundsMuted = (() => {
     try {
@@ -280,6 +228,23 @@ function initializeAudio() {
     return audioContext;
 }
 
+function unlockAudio() {
+    if (soundsMuted) return;
+
+    const context = initializeAudio();
+
+    if (!context || context.state === "running") return;
+    if (audioUnlockPromise) return;
+
+    audioUnlockPromise = context.resume()
+        .catch(() => {
+       
+        })
+        .finally(() => {
+            audioUnlockPromise = null;
+        });
+}
+
 function playTone(
     context,
     frequency,
@@ -295,11 +260,7 @@ function playTone(
     oscillator.frequency.setValueAtTime(frequency, startTime);
 
     gain.gain.setValueAtTime(0, startTime);
-
-    gain.gain.linearRampToValueAtTime(
-        volume,
-        startTime + 0.015
-    );
+    gain.gain.linearRampToValueAtTime(volume, startTime + 0.015);
 
     gain.gain.exponentialRampToValueAtTime(
         0.001,
@@ -313,6 +274,22 @@ function playTone(
     oscillator.stop(startTime + duration + 0.03);
 }
 
+function scheduleNotes(context, notes) {
+    if (soundsMuted || context.state !== "running") return;
+
+    const now = context.currentTime;
+
+    notes.forEach(([frequency, delay, duration, volume]) => {
+        playTone(
+            context,
+            frequency,
+            now + delay,
+            duration,
+            volume
+        );
+    });
+}
+
 function playNotes(notes) {
     if (soundsMuted) return;
 
@@ -320,35 +297,16 @@ function playNotes(notes) {
 
     if (!context) return;
 
-    // Mobile browsers can suspend audio until a user interaction.
-    // Resume first, then schedule the notes.
-    const scheduleNotes = () => {
-        if (soundsMuted || !context) return;
-
-        const now = context.currentTime;
-
-        notes.forEach(([frequency, delay, duration, volume]) => {
-            playTone(
-                context,
-                frequency,
-                now + delay,
-                duration,
-                volume
-            );
-        });
-    };
-
-    if (context.state === "suspended") {
-        context.resume()
-            .then(scheduleNotes)
-            .catch(error => {
-                console.warn("Audio could not resume:", error);
-            });
-
+    if (context.state === "running") {
+        scheduleNotes(context, notes);
         return;
     }
 
-    scheduleNotes();
+    context.resume()
+        .then(() => scheduleNotes(context, notes))
+        .catch(() => {
+            // Do not queue sounds for a later interaction.
+        });
 }
 
 function playGrowSound() {
@@ -408,13 +366,16 @@ function toggleMute() {
     updateMuteButton();
 
     if (!soundsMuted) {
-        playPurchaseSound();
+        unlockAudio();
     }
 }
 
-// ============================================
-// CURRENT FLOWER
-// ============================================
+// Unlock audio through a real user interaction.
+document.addEventListener("pointerdown", unlockAudio, true);
+
+/* ============================================
+   CURRENT FLOWER
+============================================ */
 
 function getCurrentFlower() {
     return flowerProgress[selectedPlant];
@@ -436,65 +397,25 @@ function getWaterAmount() {
     return 5 + canLevel * 5;
 }
 
+function getCollectionBonus() {
+    return Math.max(0, unlockedPlants.length - 1) * COLLECTION_BONUS;
+}
+
 function getPassiveGrowth() {
-    return 1 + compostLevel + fertilizerLevel * 2;
+    return 1 + compostLevel + fertilizerLevel * 2 + getCollectionBonus();
 }
 
 function getRebirthReward() {
     return REBIRTH_REWARD * Math.pow(2, rebirthCount);
 }
 
-// ============================================
-// GAME COMPLETION CHECK
-// ============================================
-
-function isGameComplete() {
-    const allFlowersUnlocked = availablePlants.every(item =>
-        unlockedPlants.includes(item.id)
-    );
-
-    const allUpgradesMaxed = [
-        compostLevel,
-        canLevel,
-        catcherLevel,
-        fertilizerLevel,
-        autoClickerLevel
-    ].every(level => level >= MAX_UPGRADE_LEVEL);
-
-    return allFlowersUnlocked && allUpgradesMaxed;
-}
-
-function updateGameOver() {
-    gameOver = isGameComplete();
-
-    gameOverScreen.hidden = !gameOver;
-
-    plantButton.disabled =
-        gameOver || isFullyGrown(getCurrentFlower());
-
-    waterButton.disabled =
-        gameOver || isFullyGrown(getCurrentFlower());
-
-    if (gameOver) {
-        rebirthButton.disabled = true;
-
-        buyCompostButton.disabled = true;
-        buyCanButton.disabled = true;
-        buyCatcherButton.disabled = true;
-        buyFertilizerButton.disabled = true;
-        buyAutoClickerButton.disabled = true;
-
-        autoToggleButton.disabled = true;
-    }
-}
-
-// ============================================
-// SAVE GAME
-// ============================================
+/* ============================================
+   SAVE GAME
+============================================ */
 
 function saveGame() {
     const gameData = {
-        version: 2,
+        version: 3,
         sunlight,
         compostLevel,
         canLevel,
@@ -517,9 +438,9 @@ function saveGame() {
     }
 }
 
-// ============================================
-// RESET STATE
-// ============================================
+/* ============================================
+   RESET STATE
+============================================ */
 
 function resetState() {
     sunlight = 0;
@@ -531,7 +452,6 @@ function resetState() {
     autoClickerLevel = 0;
 
     autoClickerEnabled = true;
-
     rebirthCount = 0;
 
     unlockedPlants = ["sprout"];
@@ -540,13 +460,11 @@ function resetState() {
     flowerProgress = {
         sprout: createFlowerProgress()
     };
-
-    gameOver = false;
 }
 
-// ============================================
-// LOAD GAME
-// ============================================
+/* ============================================
+   LOAD GAME
+============================================ */
 
 function loadGame() {
     let data;
@@ -563,8 +481,10 @@ function loadGame() {
         }
     } catch (error) {
         console.error("Could not load saved game:", error);
+
         resetState();
         saveGame();
+
         return;
     }
 
@@ -617,7 +537,7 @@ function loadGame() {
             };
         });
     } else if (data.growth !== undefined) {
-        // Compatibility with older single-flower saves.
+        // Support older single-flower saves.
         const growth = safeNumber(data.growth, MAX_GROWTH);
 
         flowerProgress.sprout = {
@@ -635,16 +555,15 @@ function loadGame() {
         flowerProgress[selectedPlant] = createFlowerProgress();
     }
 
+    // Preserve the existing save format.
     saveGame();
 }
 
-// ============================================
-// GROWTH
-// ============================================
+/* ============================================
+   GROWTH
+============================================ */
 
 function addGrowth(amount) {
-    if (gameOver) return false;
-
     const flower = getCurrentFlower();
 
     if (!flower || isFullyGrown(flower)) return false;
@@ -664,25 +583,22 @@ function checkGrowthStage() {
 
     const newStage = calculateStage(flower.growth);
 
-    if (newStage > flower.stage) {
-        const stagesReached = newStage - flower.stage;
+    if (newStage <= flower.stage) return;
 
-        flower.stage = newStage;
-        sunlight += stagesReached * 5;
-    }
+    const stagesReached = newStage - flower.stage;
+
+    flower.stage = newStage;
+    sunlight += stagesReached * 5;
 }
 
-// ============================================
-// WATERING
-// ============================================
+/* ============================================
+   WATERING AND PLANT CLICKING
+============================================ */
 
 function waterPlant() {
-    if (gameOver) return;
-
     const flower = getCurrentFlower();
 
     if (isFullyGrown(flower)) return;
-
     if (!addGrowth(getWaterAmount())) return;
 
     flower.waterCount++;
@@ -694,15 +610,8 @@ function waterPlant() {
     saveGame();
 }
 
-// ============================================
-// CLICKING THE PLANT
-// ============================================
-
 function clickPlant() {
-    if (gameOver) return;
-
     if (isFullyGrown(getCurrentFlower())) return;
-
     if (!addGrowth(1)) return;
 
     sunlight += SUN_PER_CLICK;
@@ -713,14 +622,12 @@ function clickPlant() {
     saveGame();
 }
 
-// ============================================
-// AUTOMATIC GROWTH
-// ============================================
+/* ============================================
+   AUTOMATIC GROWTH
+============================================ */
 
 function passiveGrowth() {
-    if (gameOver) return;
     if (isFullyGrown(getCurrentFlower())) return;
-
     if (!addGrowth(getPassiveGrowth())) return;
 
     updateGame();
@@ -728,7 +635,6 @@ function passiveGrowth() {
 }
 
 function passiveSunlight() {
-    if (gameOver) return;
     if (catcherLevel <= 0) return;
 
     sunlight += catcherLevel;
@@ -737,14 +643,12 @@ function passiveSunlight() {
     saveGame();
 }
 
-// ============================================
-// GARDEN HELPER
-// ============================================
+/* ============================================
+   GARDEN HELPER
+============================================ */
 
 function autoClick() {
-    if (gameOver) return;
-    if (autoClickerLevel <= 0) return;
-    if (!autoClickerEnabled) return;
+    if (autoClickerLevel <= 0 || !autoClickerEnabled) return;
     if (isFullyGrown(getCurrentFlower())) return;
 
     if (!addGrowth(autoClickerLevel)) return;
@@ -760,43 +664,38 @@ function getAutoClickerCost() {
 }
 
 function toggleAutoClicker() {
-    if (gameOver) return;
     if (autoClickerLevel <= 0) return;
 
     autoClickerEnabled = !autoClickerEnabled;
 
     shopMessage = autoClickerEnabled
-        ? "Your garden helper is back to work! 🤖"
-        : "Your garden helper is taking a little break. ♡";
+        ? "Your garden helper is back to work!"
+        : "Your garden helper is taking a little break.";
 
     updateGame();
     saveGame();
 }
 
-// ============================================
-// PLANT APPEARANCE
-// ============================================
+/* ============================================
+   PLANT APPEARANCE
+============================================ */
 
 function updatePlantAppearance() {
     const flower = getCurrentFlower();
     const currentStage = flower.stage;
 
-    plant.className = "plant";
-    plant.classList.add(`stage-${currentStage}`);
-    plant.classList.add(`flower-${selectedPlant}`);
-
     const selectedFlower = availablePlants.find(
         item => item.id === selectedPlant
     );
+
+    plant.className = `plant stage-${currentStage} flower-${selectedPlant}`;
 
     plantName.textContent = selectedPlant === "sprout"
         ? "Your first sprout ♡"
         : `Your ${selectedFlower.name.toLowerCase()} ♡`;
 
     plantStage.textContent = stageNames[currentStage - 1];
-
-    plantDescription.textContent =
-        stageDescriptions[currentStage - 1];
+    plantDescription.textContent = stageDescriptions[currentStage - 1];
 
     if (isFullyGrown(flower)) {
         waterLabel.textContent = "Your plant is fully grown!";
@@ -811,11 +710,14 @@ function updatePlantAppearance() {
         passiveInfo.textContent =
             `Your garden grows +${getPassiveGrowth()} every 10 seconds!`;
     }
+
+    plantButton.disabled = isFullyGrown(flower);
+    waterButton.disabled = isFullyGrown(flower);
 }
 
-// ============================================
-// PROGRESS BAR
-// ============================================
+/* ============================================
+   PROGRESS BAR
+============================================ */
 
 function updateProgress() {
     const flower = getCurrentFlower();
@@ -824,6 +726,7 @@ function updateProgress() {
         progressText.textContent = "Fully grown!";
         progressFill.style.width = "100%";
         progressBar.setAttribute("aria-valuenow", 100);
+
         return;
     }
 
@@ -841,9 +744,7 @@ function updateProgress() {
         (currentGrowth / stageGrowth) * 100
     );
 
-    progressText.textContent =
-        `${flower.growth} / ${requirement}`;
-
+    progressText.textContent = `${flower.growth} / ${requirement}`;
     progressFill.style.width = `${percentage}%`;
 
     progressBar.setAttribute(
@@ -852,39 +753,90 @@ function updateProgress() {
     );
 }
 
-// ============================================
-// UPGRADE COSTS
-// ============================================
+/* ============================================
+   UPGRADE CONFIGURATION
+============================================ */
 
-function getCompostCost() {
-    return 4 + compostLevel * 4;
-}
+const upgrades = {
+    compost: {
+        get level() {
+            return compostLevel;
+        },
+        get cost() {
+            return 4 + compostLevel * 4;
+        },
+        display: compostDisplay,
+        button: buyCompostButton,
+        purchase: () => compostLevel++,
+        message: "Your compost is making the garden richer! 🍂"
+    },
 
-function getCanCost() {
-    return 6 + canLevel * 6;
-}
+    can: {
+        get level() {
+            return canLevel;
+        },
+        get cost() {
+            return 6 + canLevel * 6;
+        },
+        display: canDisplay,
+        button: buyCanButton,
+        purchase: () => canLevel++,
+        message: "Your new watering can is ready! 🫗"
+    },
 
-function getCatcherCost() {
-    return 10 + catcherLevel * 10;
-}
+    catcher: {
+        get level() {
+            return catcherLevel;
+        },
+        get cost() {
+            return 10 + catcherLevel * 10;
+        },
+        display: catcherDisplay,
+        button: buyCatcherButton,
+        purchase: () => catcherLevel++,
+        message: "Your sun catcher is sparkling! 🌞"
+    },
 
-function getFertilizerCost() {
-    return 12 + fertilizerLevel * 12;
-}
+    fertilizer: {
+        get level() {
+            return fertilizerLevel;
+        },
+        get cost() {
+            return 12 + fertilizerLevel * 12;
+        },
+        display: fertilizerDisplay,
+        button: buyFertilizerButton,
+        purchase: () => fertilizerLevel++,
+        message: "Your soil is getting richer! 🌱"
+    },
 
-// ============================================
-// BUY UPGRADES
-// ============================================
+    autoClicker: {
+        get level() {
+            return autoClickerLevel;
+        },
+        get cost() {
+            return getAutoClickerCost();
+        },
+        display: autoClickerDisplay,
+        button: buyAutoClickerButton,
+        purchase: () => autoClickerLevel++,
+        message: "Your little helper is growing the garden for you!"
+    }
+};
 
-function buyUpgrade(cost, level, callback, message) {
-    if (gameOver) return;
-    if (level >= MAX_UPGRADE_LEVEL) return;
-    if (sunlight < cost) return;
+/* ============================================
+   BUY UPGRADES
+============================================ */
 
-    sunlight -= cost;
-    callback();
+function buyUpgrade(upgrade) {
+    if (upgrade.level >= MAX_UPGRADE_LEVEL) return;
+    if (sunlight < upgrade.cost) return;
 
-    shopMessage = message;
+    sunlight -= upgrade.cost;
+
+    upgrade.purchase();
+
+    shopMessage = upgrade.message;
 
     playPurchaseSound();
 
@@ -892,83 +844,23 @@ function buyUpgrade(cost, level, callback, message) {
     saveGame();
 }
 
-function buyCompost() {
-    buyUpgrade(
-        getCompostCost(),
-        compostLevel,
-        () => compostLevel++,
-        "Your compost is making the garden richer! 🍂"
-    );
-}
-
-function buyCan() {
-    buyUpgrade(
-        getCanCost(),
-        canLevel,
-        () => canLevel++,
-        "Your new watering can is ready! 🫗"
-    );
-}
-
-function buyCatcher() {
-    buyUpgrade(
-        getCatcherCost(),
-        catcherLevel,
-        () => catcherLevel++,
-        "Your sun catcher is sparkling! 🌞"
-    );
-}
-
-function buyFertilizer() {
-    buyUpgrade(
-        getFertilizerCost(),
-        fertilizerLevel,
-        () => fertilizerLevel++,
-        "Your soil is getting richer! 🌱"
-    );
-}
-
-function buyAutoClicker() {
-    buyUpgrade(
-        getAutoClickerCost(),
-        autoClickerLevel,
-        () => autoClickerLevel++,
-        "Your little helper is growing the garden for you! 🤖"
-    );
-}
-
-// ============================================
-// SHOP DISPLAY
-// ============================================
-
 function updateShop() {
     shopSunlight.textContent = sunlight;
 
-    compostDisplay.textContent = compostLevel;
-    canDisplay.textContent = canLevel;
-    catcherDisplay.textContent = catcherLevel;
-    fertilizerDisplay.textContent = fertilizerLevel;
-    autoClickerDisplay.textContent = autoClickerLevel;
+    Object.values(upgrades).forEach(upgrade => {
+        upgrade.display.textContent = upgrade.level;
 
-    const upgrades = [
-        [buyCompostButton, getCompostCost(), compostLevel],
-        [buyCanButton, getCanCost(), canLevel],
-        [buyCatcherButton, getCatcherCost(), catcherLevel],
-        [buyFertilizerButton, getFertilizerCost(), fertilizerLevel],
-        [buyAutoClickerButton, getAutoClickerCost(), autoClickerLevel]
-    ];
+        upgrade.button.textContent =
+            upgrade.level >= MAX_UPGRADE_LEVEL
+                ? "MAX LEVEL"
+                : `☀️ ${upgrade.cost}`;
 
-    upgrades.forEach(([button, cost, level]) => {
-        button.textContent = level >= MAX_UPGRADE_LEVEL
-            ? "MAX LEVEL"
-            : `☀️ ${cost}`;
-
-        button.disabled =
-            sunlight < cost || level >= MAX_UPGRADE_LEVEL || gameOver;
+        upgrade.button.disabled =
+            sunlight < upgrade.cost ||
+            upgrade.level >= MAX_UPGRADE_LEVEL;
     });
 
-    autoToggleButton.disabled =
-        autoClickerLevel <= 0 || gameOver;
+    autoToggleButton.disabled = autoClickerLevel <= 0;
 
     autoToggleButton.textContent = autoClickerEnabled
         ? "Pause helper"
@@ -982,12 +874,11 @@ function updateShop() {
     shopNote.textContent = shopMessage;
 }
 
-// ============================================
-// FLOWER SELECTION
-// ============================================
+/* ============================================
+   FLOWER SELECTION
+============================================ */
 
 function selectFlower(id) {
-    if (gameOver) return;
     if (!unlockedPlants.includes(id)) return;
     if (selectedPlant === id) return;
 
@@ -1003,9 +894,9 @@ function selectFlower(id) {
     saveGame();
 }
 
-// ============================================
-// COLLECTION DISPLAY
-// ============================================
+/* ============================================
+   COLLECTION DISPLAY
+============================================ */
 
 function renderCollection() {
     const collected = availablePlants.filter(
@@ -1014,6 +905,9 @@ function renderCollection() {
 
     collectionCount.textContent =
         `${collected.length} / ${availablePlants.length}`;
+
+    collectionBonusDisplay.textContent =
+        `🌱 Collection bonus: +${getCollectionBonus()} automatic growth every 10 seconds.`;
 
     plantCollection.innerHTML = collected.map(item => {
         const selected = selectedPlant === item.id;
@@ -1029,8 +923,9 @@ function renderCollection() {
 
                 <button
                     class="select-flower"
+                    type="button"
                     data-select="${item.id}"
-                    ${selected || gameOver ? "disabled" : ""}
+                    ${selected ? "disabled" : ""}
                 >
                     ${selected ? "Selected ✓" : "Select flower"}
                 </button>
@@ -1059,12 +954,14 @@ function renderCollection() {
             <div class="seed-details">
                 <h4>${item.name}</h4>
                 <p>${item.description}</p>
+                <p>Unlocks +5 automatic growth every 10 seconds.</p>
             </div>
 
             <button
                 class="seed-button"
+                type="button"
                 data-seed="${item.id}"
-                ${sunlight < item.cost || gameOver ? "disabled" : ""}
+                ${sunlight < item.cost ? "disabled" : ""}
             >
                 ☀️ ${item.cost}
             </button>
@@ -1072,13 +969,11 @@ function renderCollection() {
     `).join("");
 }
 
-// ============================================
-// BUY FLOWERS
-// ============================================
+/* ============================================
+   BUY FLOWERS
+============================================ */
 
 function buySeed(id) {
-    if (gameOver) return;
-
     const flower = availablePlants.find(
         item => item.id === id
     );
@@ -1096,7 +991,7 @@ function buySeed(id) {
     selectedPlant = id;
 
     shopMessage =
-        `${flower.name} joined your garden! ${flower.emoji}`;
+        `${flower.name} joined your garden! Your collection bonus increased by +5 growth. ${flower.emoji}`;
 
     playFlowerSound();
 
@@ -1104,35 +999,31 @@ function buySeed(id) {
     saveGame();
 }
 
-// ============================================
-// REBIRTH
-// ============================================
+/* ============================================
+   REBIRTH
+============================================ */
 
 function updateRebirth() {
     const canRebirth = hasCompletedFlower();
 
     rebirthDisplay.textContent = rebirthCount;
 
-    rebirthButton.disabled = !canRebirth || gameOver;
+    rebirthButton.disabled = !canRebirth;
 
     rebirthButton.textContent = canRebirth
         ? `✨ Rebirth (+${getRebirthReward()} ☀️)`
         : "✨ Rebirth";
 
-    rebirthInfo.textContent = gameOver
-        ? "Your garden is complete! ♡"
-        : "Grow any one flower completely to unlock rebirth.";
+    rebirthInfo.textContent =
+        "Grow any one flower completely to unlock rebirth.";
 }
 
 function rebirthGarden() {
-    if (gameOver) return;
     if (!hasCompletedFlower()) return;
 
-    // Calculate the reward before increasing the rebirth count.
     const reward = getRebirthReward();
 
     rebirthCount++;
-
     sunlight = reward;
 
     compostLevel = 0;
@@ -1159,20 +1050,11 @@ function rebirthGarden() {
     saveGame();
 }
 
-// ============================================
-// FULL RESTART
-// ============================================
+/* ============================================
+   FULL RESTART
+============================================ */
 
-function restartGame(skipConfirmation = false) {
-    if (!skipConfirmation) {
-        const confirmed = confirm(
-            "Are you sure you want to restart your garden?\n\n" +
-            "All growth, sunlight, upgrades, collected flowers, and rebirths will be permanently lost."
-        );
-
-        if (!confirmed) return;
-    }
-
+function restartGame() {
     resetState();
 
     shopMessage = "Little improvements make a big difference. ♡";
@@ -1183,9 +1065,9 @@ function restartGame(skipConfirmation = false) {
     saveGame();
 }
 
-// ============================================
-// UPDATE GAME
-// ============================================
+/* ============================================
+   UPDATE GAME
+============================================ */
 
 function updateGame() {
     checkGrowthStage();
@@ -1204,41 +1086,34 @@ function updateGame() {
     updateShop();
     renderCollection();
     updateRebirth();
-
-    // Check completion after all game displays are refreshed.
-    updateGameOver();
-
-    // Refresh displays that depend on the completion state.
-    updateShop();
-    updateRebirth();
-    renderCollection();
 }
 
-// ============================================
-// EVENT LISTENERS
-// ============================================
+/* ============================================
+   EVENT LISTENERS
+============================================ */
 
+// Plant interactions
 waterButton.addEventListener("click", waterPlant);
 plantButton.addEventListener("click", clickPlant);
 
-buyCompostButton.addEventListener("click", buyCompost);
-buyCanButton.addEventListener("click", buyCan);
-buyCatcherButton.addEventListener("click", buyCatcher);
-buyFertilizerButton.addEventListener("click", buyFertilizer);
-buyAutoClickerButton.addEventListener("click", buyAutoClicker);
+// Upgrades
+buyCompostButton.addEventListener("click", () => buyUpgrade(upgrades.compost));
+buyCanButton.addEventListener("click", () => buyUpgrade(upgrades.can));
+buyCatcherButton.addEventListener("click", () => buyUpgrade(upgrades.catcher));
+buyFertilizerButton.addEventListener("click", () => buyUpgrade(upgrades.fertilizer));
+buyAutoClickerButton.addEventListener("click", () => buyUpgrade(upgrades.autoClicker));
 
+// Garden helper
 autoToggleButton.addEventListener("click", toggleAutoClicker);
 
-restartButton.addEventListener("click", () => restartGame());
-
+// Game controls
+restartButton.addEventListener("click", restartGame);
 rebirthButton.addEventListener("click", rebirthGarden);
 
+// Sound
 muteButton.addEventListener("click", toggleMute);
 
-gameOverRestartButton.addEventListener("click", () => {
-    restartGame(true);
-});
-
+// Flower selection
 plantCollection.addEventListener("click", event => {
     const button = event.target.closest("[data-select]");
 
@@ -1247,6 +1122,7 @@ plantCollection.addEventListener("click", event => {
     selectFlower(button.dataset.select);
 });
 
+// Flower purchases
 seedList.addEventListener("click", event => {
     const button = event.target.closest("[data-seed]");
 
@@ -1255,9 +1131,9 @@ seedList.addEventListener("click", event => {
     buySeed(button.dataset.seed);
 });
 
-// ============================================
-// REFRESH AND SAVE PROTECTION
-// ============================================
+/* ============================================
+   TIMERS AND SAVE PROTECTION
+============================================ */
 
 let timersStarted = false;
 
@@ -1270,41 +1146,28 @@ function startGameTimers() {
     window.setInterval(passiveSunlight, SUN_INTERVAL);
     window.setInterval(autoClick, AUTO_CLICK_INTERVAL);
 
-    // Backup save.
-    window.setInterval(saveGame, 5000);
+    window.setInterval(saveGame, SAVE_INTERVAL);
 }
 
-// Save when the page is hidden or refreshed.
+// Save when the page is hidden.
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
         saveGame();
     }
 });
 
+// Save when leaving or refreshing the page.
 window.addEventListener("pagehide", saveGame);
 window.addEventListener("beforeunload", saveGame);
 
-// Initialize audio from a real user interaction.
-// This is especially important for mobile browsers.
-document.addEventListener("pointerdown", () => {
-    if (soundsMuted) return;
-
-    const context = initializeAudio();
-
-    if (context && context.state === "suspended") {
-        context.resume().catch(() => { });
-    }
-}, { once: true });
-
-// ============================================
-// START GAME
-// ============================================
+/* ============================================
+   INITIALIZE GAME
+============================================ */
 
 function initializeGame() {
     loadGame();
 
     updateMuteButton();
-
     updateGame();
 
     saveGame();

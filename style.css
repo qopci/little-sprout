@@ -47,7 +47,9 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* HEADER */
+/* ============================================
+   HEADER
+============================================ */
 
 .header {
     display: flex;
@@ -92,7 +94,9 @@ button:disabled {
     background: #d5e3cc;
 }
 
-/* MAIN */
+/* ============================================
+   MAIN LAYOUT
+============================================ */
 
 .garden {
     max-width: 900px;
@@ -123,7 +127,9 @@ button:disabled {
     color: var(--muted);
 }
 
-/* PLANT AREA */
+/* ============================================
+   PLANT AREA
+============================================ */
 
 .plant-area {
     position: relative;
@@ -158,18 +164,26 @@ button:disabled {
 
 .plant-button:active .plant {
     animation-play-state: paused;
-    transform: scale(.96);
+    transform: scale(.98);
 }
+
+/* ============================================
+   FLOWER ANIMATION
+============================================ */
 
 .plant {
     position: relative;
     flex-shrink: 0;
     width: 120px;
     height: 130px;
-    transform-origin: bottom center;
-    animation: gentle-sway 5s ease-in-out infinite;
+    transform-origin: 50% 100%;
+    animation: gentle-sway 7s ease-in-out infinite;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
 }
+
+/* Stem */
 
 .stem {
     position: absolute;
@@ -180,15 +194,21 @@ button:disabled {
     height: 65px;
     border-radius: 10px;
     background: #668e55;
-    transition: height .5s ease;
+    transition: height .8s cubic-bezier(.22, 1, .36, 1);
 }
+
+/* Leaves */
 
 .leaf {
     position: absolute;
     z-index: 2;
     border-radius: 100% 0 100% 0;
     background: #81ad6d;
-    transition: .5s ease;
+    transition:
+        width .8s cubic-bezier(.22, 1, .36, 1),
+        height .8s cubic-bezier(.22, 1, .36, 1),
+        background-color .5s ease;
+    backface-visibility: hidden;
 }
 
 .leaf-left {
@@ -217,7 +237,9 @@ button:disabled {
     background: #a5c986;
 }
 
-/* GROWTH STAGES */
+/* ============================================
+   GROWTH STAGES
+============================================ */
 
 .plant.stage-2 .stem {
     height: 78px;
@@ -257,7 +279,9 @@ button:disabled {
     height: 38px;
 }
 
-/* FLOWER COLORS */
+/* ============================================
+   FLOWER COLORS
+============================================ */
 
 .flower-sprout .leaf-left {
     background: #81ad6d;
@@ -331,7 +355,9 @@ button:disabled {
     background: #f4c47e;
 }
 
-/* POT */
+/* ============================================
+   POT
+============================================ */
 
 .pot {
     position: relative;
@@ -363,7 +389,9 @@ button:disabled {
     clip-path: polygon(0 0, 100% 0, 83% 100%, 17% 100%);
 }
 
-/* PLANT INFORMATION */
+/* ============================================
+   PLANT INFORMATION
+============================================ */
 
 .plant-name {
     color: var(--dark-green);
@@ -377,7 +405,9 @@ button:disabled {
     font-size: 13px;
 }
 
-/* PROGRESS */
+/* ============================================
+   PROGRESS BAR
+============================================ */
 
 .progress-container {
     margin: 28px 0 22px;
@@ -409,7 +439,9 @@ button:disabled {
     transition: width .4s ease;
 }
 
-/* BUTTONS */
+/* ============================================
+   BUTTONS
+============================================ */
 
 .water-button,
 .buy-button,
@@ -467,7 +499,9 @@ button:disabled {
     font-size: 12px;
 }
 
-/* STATS */
+/* ============================================
+   GARDEN STATS
+============================================ */
 
 .garden-stats {
     display: grid;
@@ -499,7 +533,9 @@ button:disabled {
     font-size: 23px;
 }
 
-/* SHOP AND COLLECTION */
+/* ============================================
+   SHOP AND COLLECTION
+============================================ */
 
 .shop,
 .collection {
@@ -544,7 +580,9 @@ button:disabled {
     white-space: nowrap;
 }
 
-/* UPGRADES */
+/* ============================================
+   UPGRADES
+============================================ */
 
 .upgrade-list {
     display: flex;
@@ -639,7 +677,22 @@ button:disabled {
     text-align: center;
 }
 
-/* FLOWER COLLECTION */
+/* ============================================
+   FLOWER COLLECTION
+============================================ */
+
+.collection-bonus {
+    margin: -8px 0 20px;
+    padding: 12px 14px;
+    border: 1px solid #dce7d3;
+    border-radius: 12px;
+    background: var(--light-green);
+    color: var(--dark-green);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.5;
+    text-align: center;
+}
 
 .plant-collection {
     display: grid;
@@ -683,6 +736,8 @@ button:disabled {
     cursor: default;
 }
 
+/* Seed shop */
+
 .seed-heading {
     margin: 30px 0 15px;
 }
@@ -696,6 +751,12 @@ button:disabled {
     margin-top: 4px;
     color: var(--muted);
     font-size: 12px;
+}
+
+.seed-heading .seed-perk-hint {
+    margin-top: 8px;
+    color: var(--green);
+    font-weight: 800;
 }
 
 .seed-list {
@@ -735,7 +796,9 @@ button:disabled {
     text-align: center;
 }
 
-/* RESTART AND REBIRTH */
+/* ============================================
+   RESTART AND REBIRTH
+============================================ */
 
 .restart-container {
     display: flex;
@@ -792,89 +855,25 @@ button:disabled {
     text-align: center;
 }
 
-/* GAME COMPLETION */
-
-.game-over[hidden] {
-    display: none;
-}
-
-.game-over {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: #263322a8;
-}
-
-.game-over-card {
-    width: 100%;
-    max-width: 440px;
-    padding: 40px 28px;
-    border: 1px solid var(--border);
-    border-radius: 25px;
-    background: var(--cream);
-    box-shadow: 0 15px 50px #00000020;
-    text-align: center;
-}
-
-.game-over-flowers {
-    margin-bottom: 22px;
-    font-size: 32px;
-}
-
-.game-over-card h2 {
-    margin-bottom: 15px;
-    color: var(--dark-green);
-    font-size: 28px;
-}
-
-.game-over-card>p:not(.eyebrow) {
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.7;
-}
-
-.game-over-card .game-over-message {
-    margin-top: 15px;
-    color: var(--green);
-    font-weight: 800;
-}
-
-.game-over-restart {
-    width: 100%;
-    margin-top: 25px;
-    padding: 15px;
-    border: none;
-    border-radius: 12px;
-    background: var(--green);
-    color: white;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background .2s ease;
-}
-
-.game-over-restart:hover {
-    background: var(--dark-green);
-}
-
-/* ANIMATIONS */
+/* ============================================
+   ANIMATIONS
+============================================ */
 
 @keyframes gentle-sway {
 
     0%,
     100% {
-        transform: rotate(-1deg);
+        transform: rotate(-0.6deg);
     }
 
     50% {
-        transform: rotate(1deg);
+        transform: rotate(0.6deg);
     }
 }
+
+/* ============================================
+   FOOTER
+============================================ */
 
 footer {
     padding: 25px;
@@ -883,9 +882,12 @@ footer {
     text-align: center;
 }
 
-/* MOBILE */
+/* ============================================
+   MOBILE
+============================================ */
 
 @media (max-width: 550px) {
+
     .header {
         flex-direction: column;
         gap: 15px;
@@ -972,15 +974,17 @@ footer {
     }
 }
 
-/* ACCESSIBILITY */
+/* ============================================
+   ACCESSIBILITY
+============================================ */
 
 @media (prefers-reduced-motion: reduce) {
 
     *,
     *::before,
     *::after {
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important;
+        animation: none !important;
+        transition: none !important;
         scroll-behavior: auto !important;
     }
 }
